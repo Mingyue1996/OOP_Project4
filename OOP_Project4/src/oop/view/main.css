@@ -1,0 +1,21 @@
+.root {
+	-fx-background-color: lightblue;
+}
+
+.submitButton {
+	-fx-color: orange;
+}
+
+.submitButton:hover {
+	-fx-color: #CCCCCC;
+}
+
+#twoDArray {
+	-fx-font: bold 20pt "Arial";
+	-fx-text-fill: azure;
+}
+
+.textTitle {
+	-fx-font: bold 40pt "Arial";
+	-fx-fill: white;
+}
