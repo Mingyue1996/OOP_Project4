@@ -3,6 +3,12 @@ package oop.player;
 import java.io.Serializable;
 
 public class Player implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1682581207599914438L;
+	//private static final long serialVersionUID = 1L;
 	String username;
 	String marker;
 	int playerID;
@@ -29,6 +35,10 @@ public class Player implements Serializable {
 	
 	public String getMarker() {
 		return marker;
+	}
+	
+	public void setMarker(String newMarker) {
+		marker = newMarker;
 	}
 	
 	public void makeMove(int row, int col) {

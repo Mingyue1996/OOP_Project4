@@ -28,6 +28,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -75,6 +76,7 @@ public class MainView {
     public static Timeline timerSquare;
     public static Button quitBtn;
     private ArrayList<String> userInfoArrayList = new ArrayList<String>();
+    private String[] imageOption = {"♫", "☀", "✈", "♕"};
     //public static Timeline timerSquare;
     
 	public MainView() {
@@ -301,8 +303,7 @@ public class MainView {
 			
 		}
 		
-		
-		
+
 		
 		
 		displayInfo();
@@ -341,45 +342,16 @@ public class MainView {
 		
 		
 		
-		
-		// add radio buttons
-		RadioButton enterMarkerButton = new RadioButton("Enter a string");
-		RadioButton chooseImageButton = new RadioButton("Choose an image");
-		
-		// group the buttons together
-		ToggleGroup radioButtonsGroup = new ToggleGroup();
-		enterMarkerButton.setToggleGroup(radioButtonsGroup);
-		chooseImageButton.setToggleGroup(radioButtonsGroup); 
-					
-		
-		gridPaneForInfo.add(enterMarkerButton, 1, 2);
-		gridPaneForInfo.add(chooseImageButton, 2, 2);
-		
-		enterMarkerButton.setSelected(true);
-		gridPaneForInfo.add(fieldMarker1, 1, 3);
+		/********************Enter your marker************************/
+		ObservableList<String> markerOption = FXCollections.observableArrayList(imageOption);
+		ComboBox<String> enterMarker1 = new ComboBox<>(markerOption);
+		enterMarker1.setEditable(true);
+		gridPaneForInfo.add(enterMarker1, 1, 2);
 		
 		
-		// create rbUS
-		RadioButton rbUS = new RadioButton("US");
-		rbUS.setGraphic(new ImageView(Paths.get("src/us.png").toUri().toString()));
-		rbUS.setContentDisplay(ContentDisplay.LEFT);
-		rbUS.setSelected(true);
-		
-		// create rbCN
-		RadioButton rbCN = new RadioButton("China");
-		rbCN.setGraphic(new ImageView(Paths.get("src/cn.png").toUri().toString()));
-		rbCN.setContentDisplay(ContentDisplay.LEFT);
-		
-		// create rbGB
-		RadioButton rbGB = new RadioButton("United Kingdom");
-		rbGB.setGraphic(new ImageView(Paths.get("src/gb.png").toUri().toString()));
-		rbGB.setContentDisplay(ContentDisplay.LEFT);
-	
-		// group the buttons together
-		ToggleGroup radioButtonsImageGroup = new ToggleGroup();
-		rbUS.setToggleGroup(radioButtonsImageGroup);
-		rbCN.setToggleGroup(radioButtonsImageGroup);
-		rbGB.setToggleGroup(radioButtonsImageGroup);
+		enterMarker1.valueProperty().addListener((obs, old, n) -> {
+			marker1 = n;		
+		});
 		
 		// add radio buttons
 
@@ -525,54 +497,7 @@ if (numPlayer == 2) {
 				} // end of enterUsernameButton is selected
 			}); // end of enterUsernameButton
 
-			
-			
-			
 
-		
-		enterMarkerButton.setOnAction(e -> {
-			if (enterMarkerButton.isSelected()) {
-				// add text field
-				if (!gridPaneForInfo.getChildren().contains(fieldMarker1)) {
-					gridPaneForInfo.add(fieldMarker1, 1, 3);
-				}
-				
-				// remove image buttons
-				if (gridPaneForInfo.getChildren().contains(rbUS)) {
-					gridPaneForInfo.getChildren().remove(rbUS);
-				}
-				if (gridPaneForInfo.getChildren().contains(rbCN)) {
-					gridPaneForInfo.getChildren().remove(rbCN);
-				}
-				if (gridPaneForInfo.getChildren().contains(rbGB)) {
-					gridPaneForInfo.getChildren().remove(rbGB);
-				}
-			} // end of enterMarkerButton is selected
-		});
-		
-		
-		chooseImageButton.setOnAction(e -> {
-			if (chooseImageButton.isSelected()) {
-				// remove text field
-				if (gridPaneForInfo.getChildren().contains(fieldMarker1)) {
-					gridPaneForInfo.getChildren().remove(fieldMarker1);
-				}			
-
-				
-				// add image radio buttons
-				if (!gridPaneForInfo.getChildren().contains(rbUS)) {
-					gridPaneForInfo.add(rbUS, 1, 3);
-				}
-				if (!gridPaneForInfo.getChildren().contains(rbCN)) {
-					gridPaneForInfo.add(rbCN, 2, 3);
-				}
-				if (!gridPaneForInfo.getChildren().contains(rbGB)) {
-					gridPaneForInfo.add(rbGB, 3, 3);
-				}
-				
-			} // end of if ImageButton is selected
-		});
-		
 		// select enter a marker2
 		enterMarkerButton2.setOnAction(e -> {
 			if (enterMarkerButton2.isSelected()) {
@@ -631,7 +556,7 @@ if (numPlayer == 2) {
 		try {
 			if (!chooseUsernameButton.isSelected()) {
 				username1 = fieldUsername1.getText().trim();
-				marker1 = fieldMarker1.getText().trim();
+				//marker1 = fieldMarker1.getText().trim();
 			}
 			
 			
@@ -644,23 +569,7 @@ if (numPlayer == 2) {
 			
 			
 			
-			// if an image is selected for player1
-			if (chooseImageButton.isSelected() && !chooseUsernameButton.isSelected() ) {
-				isImageMarker1 = true;
-				// check which image is selected and store its directory
-				if (rbUS.isSelected()) {
-					marker1 = "us.png";
-				}
-				else if (rbCN.isSelected()) {
-					marker1 = "cn.png";
-				}
-				else if (rbGB.isSelected()) {
-					marker1 = "gb.png";
-				}
-			} // end of if an image is selected
-			else if (!chooseUsernameButton.isSelected() && !chooseImageButton.isSelected() ){
-				marker1 = fieldMarker1.getText();
-			}
+		
 			
 			if (numPlayer == 2 && chooseImageButton2.isSelected() && !chooseUsernameButton2.isSelected()) {
 				isImageMarker2 = true;
@@ -702,10 +611,7 @@ if (numPlayer == 2) {
 			if (numPlayer == 2 && lvUsername2.getSelectionModel().selectedItemProperty().getValue() == null && chooseUsernameButton2.isSelected()) {
 				emptyErrors = true;
 			}
-			
-			if (!chooseImageButton.isSelected()) {
-				isImageMarker1 = false;
-			}
+	
 			if (!chooseImageButton2.isSelected()) {
 				isImageMarker2 = false;
 			}
@@ -830,8 +736,10 @@ if (numPlayer == 2) {
 						// if we choose a user name, use the original player object				
 						if (chooseUsernameButton.isSelected()) {
 							// update the marker
-							System.out.println(ticTacToe.getHashMap().get(username1));
+							//System.out.println(ticTacToe.getHashMap().get(username1).getMarker());
+							ticTacToe.getHashMap().get(username1).setMarker(marker1);
 							ticTacToe.player.add(0,ticTacToe.getHashMap().get(username1));
+							System.out.println(ticTacToe.getHashMap().get(username1).getMarker());
 						}
 						else {
 							ticTacToe.createPlayer(username.get(humanPlayerID-1), marker.get(humanPlayerID-1), humanPlayerID);	
