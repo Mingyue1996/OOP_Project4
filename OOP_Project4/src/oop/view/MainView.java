@@ -15,11 +15,13 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -64,6 +66,7 @@ public class MainView {
     private Text timeStringErrorText = new Text ("Time out must be an integer");
     private Text duplicateInputsText = new Text ("Two players cannot use the same username or marker.");
     private Text duplicateInputsText1 = new Text("User name is in the list already.");
+    private Text emptySelectionFirstScene = new Text ("Please select all the fields below.");
     
     private static boolean isImageMarker1 = false;
     private static boolean isImageMarker2 = false;
@@ -109,18 +112,15 @@ public class MainView {
 		VBox vBoxForButtons = new VBox(30);
 		
 		
-		// create new buttons
-		RadioButton onePlayer = new RadioButton("Play against computer");
-		RadioButton twoPlayers = new RadioButton("Play with another human");
+		ObservableList<String> numberOfPlayersOption = 
+			    FXCollections.observableArrayList(
+			        "Play against computer",
+			        "Play with another human"
+			    );
 		
-			
-		// group the buttons together
-		ToggleGroup radioButtonsGroup = new ToggleGroup();
-		onePlayer.setToggleGroup(radioButtonsGroup);
-		twoPlayers.setToggleGroup(radioButtonsGroup);
-		
-		// set a default selection
-		onePlayer.setSelected(true);
+		ComboBox<String> selectNumberOfPlayers = new ComboBox<>(numberOfPlayersOption);
+		selectNumberOfPlayers.setPromptText("Select who you want to play with");
+		selectNumberOfPlayers.setEditable(false);
 		
 		// create two buttons: continue and quit
 		Button continueButton = new Button("Continue");
@@ -128,7 +128,7 @@ public class MainView {
 		
 		
 		// add buttons to the pane
-		vBoxForButtons.getChildren().addAll(onePlayer, twoPlayers, continueButton, quitButton);		
+		vBoxForButtons.getChildren().addAll(selectNumberOfPlayers, continueButton, quitButton);	
 		vBoxForButtons.setAlignment(Pos.CENTER);
 		
 		pane.getChildren().addAll(vBoxForButtons);
@@ -139,28 +139,42 @@ public class MainView {
 			System.exit(0);
 		});
 		
-		//get the number of players
-		continueButton.setOnAction(e -> {
-			if (onePlayer.isSelected()) {
+		
+		selectNumberOfPlayers.valueProperty().addListener((obs, old, n) -> {
+			if (n.equals("Play against computer")) {
 				numPlayer = 1;
-			}
-			else if (twoPlayers.isSelected()) {
+			} else if (n.equals("Play with another human")) {			
 				numPlayer = 2;
 			}
 			
-			// remove "ask number of players" 
-			vBoxForButtons.getChildren().clear();
-			
-			// call another function to get timeout, user names, and markers
-			getPlayerInfo(vBoxForButtons);
 		});
 		
+		//get the number of players
+		continueButton.setOnAction(e -> {
+			if (!selectNumberOfPlayers.getSelectionModel().isEmpty()) {
+				// remove "ask number of players" 
+				vBoxForButtons.getChildren().clear();
+				
+				// call another function to get timeout, user names, and markers 
+				getPlayerInfo(vBoxForButtons);
+			}
+			else {
+				if (!vBoxForButtons.getChildren().contains(emptySelectionFirstScene)) {
+					vBoxForButtons.getChildren().add(0, emptySelectionFirstScene);
+				}			
+			}
+					
+		});
+				
 		return pane;
 	}
 	
 	
 	// get timeout, user names, and markers
 	public void getPlayerInfo(VBox vBoxForButtons) {
+		
+		
+		
 		
 		// create two buttons: continue and quit
 		Button startButton = new Button("Start the Game");

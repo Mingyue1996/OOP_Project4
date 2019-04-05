@@ -20,8 +20,6 @@ public class Main extends Application {
 			Scene scene =  myView.getMainScene();
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			
-			// set a title in GUI
-			//root.setTop(new CustomPane("Welcome to Tic Tac Toe!"));
 			
 			// give a title of Java app
 			primaryStage.setTitle("TicTacToe - Mingyue Chen");
