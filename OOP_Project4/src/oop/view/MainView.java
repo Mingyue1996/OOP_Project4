@@ -158,6 +158,7 @@ public class MainView {
 				// call another function to get timeout, user names, and markers 
 				getPlayerInfo(vBoxForButtons);
 			}
+			// does not select an option
 			else {
 				if (!vBoxForButtons.getChildren().contains(emptySelectionFirstScene)) {
 					vBoxForButtons.getChildren().add(0, emptySelectionFirstScene);
