@@ -149,7 +149,7 @@ public class MainView {
 			
 		});
 		
-		//get the number of players
+		// get the number of players
 		continueButton.setOnAction(e -> {
 			if (!selectNumberOfPlayers.getSelectionModel().isEmpty()) {
 				// remove "ask number of players" 
