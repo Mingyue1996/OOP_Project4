@@ -126,7 +126,7 @@ public class Square extends BorderPane{
 		if (MainView.ticTacToe.getGameState() == 0) {
 			// get currentPlayerID
 			currentPlayerID = MainView.ticTacToe.getPlayerID();
-			System.out.println(MainView.ticTacToe.player.get(currentPlayerID -1));
+			//System.out.println(MainView.ticTacToe.player.get(currentPlayerID -1));
 			String currentMarker = MainView.ticTacToe.player.get(currentPlayerID -1).getMarker();
 			computerMarker = "X";
 			if (MainView.ticTacToe.getNumberPlayers() == 1) {

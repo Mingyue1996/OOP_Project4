@@ -76,7 +76,13 @@ public class MainView {
     public static Timeline timerSquare;
     public static Button quitBtn;
     private ArrayList<String> userInfoArrayList = new ArrayList<String>();
+    private ArrayList<String> usernameArrayList = new ArrayList<String>();
+    
     private String[] imageOption = {"♫", "☀", "✈", "♕"};
+    private Button checkOldUser = new Button("Check previous game results");
+    
+    private ListView<String> lvUsername;
+    
     //public static Timeline timerSquare;
     
 	public MainView() {
@@ -91,6 +97,7 @@ public class MainView {
 	} //end of MainView
 	
 	public void getMainView() {
+		root.setPadding(new Insets(50));
 		// add a  game title
 		root.setTop(new CustomPane("Welcome to Tic Tac Toe!"));		
 		// remove play again buttons and whoseTurn label
@@ -104,6 +111,7 @@ public class MainView {
 		isImageMarker2 = false;
 		isAIMove = false;
 		username1 = username2 = marker1 = marker2 ="";
+		checkOldUser.setText("Check previous game results");
 	}
 	
 	
@@ -175,20 +183,35 @@ public class MainView {
 	
 	// get timeout, user names, and markers
 	public void getPlayerInfo(VBox vBoxForButtons) {
+
+		displayInfo();
+		// newly added create a list view for old users  for player 1
+		lvUsername = new ListView<> (FXCollections.observableArrayList(userInfoArrayList)); // userInfoArrayList
 		
-		
-		
+		checkOldUser.setOnAction (e -> {
+			if (checkOldUser.getText().contains("Check")) {
+				root.setLeft(lvUsername);
+				checkOldUser.setText("Hide previous game results");
+			}
+			else {
+				if (root.getChildren().contains(lvUsername)) {
+					root.getChildren().remove(lvUsername);
+				}
+				checkOldUser.setText("Check previous game results");
+			}
+			
+		});
 		
 		// create two buttons: continue and quit
 		Button startButton = new Button("Start the Game");
 		Button quitButton = new Button("Quit the game");
 		
 		// add buttons to the pane
-		vBoxForButtons.getChildren().addAll(startButton, quitButton);		
+		vBoxForButtons.getChildren().addAll(checkOldUser, startButton, quitButton);		
 		vBoxForButtons.setAlignment(Pos.CENTER);
 		
 		GridPane gridPaneForInfo = new GridPane();
-		//gridPaneForInfo.setPadding(new Insets(11.5, 12.5, 13.5, 14.5));
+
 		gridPaneForInfo.setHgap(20);
 		gridPaneForInfo.setVgap(20);
 		gridPaneForInfo.setAlignment(Pos.CENTER);
@@ -250,99 +273,60 @@ public class MainView {
 			
 			// add player 2's user name
 			Label player2UsernameLabel = new Label("Enter palyer 2's user name");
-			gridPaneForInfo.add(player2UsernameLabel, 0, 4);
+			gridPaneForInfo.add(player2UsernameLabel, 0, 3);
 			
 			// add player 2's user name
 			Label player2MarkerLabel = new Label("Enter palyer 2's marker");
-		    gridPaneForInfo.add(player2MarkerLabel, 0, 5);
-			
-			// add them to field
-			gridPaneForInfo.add(fieldUsername2, 3, 4);
+		    gridPaneForInfo.add(player2MarkerLabel, 0, 4);
+	
 		} // end of two users
 		
 		// add a textField for player1 user name
 		fieldUsername1 = new TextField();
 		
 		// add username1 to field
-		gridPaneForInfo.add(fieldUsername1, 3, 1);
+		//gridPaneForInfo.add(fieldUsername1, 3, 1);
 		
 		
 		// newly added
 		// add radio buttons for users to choose to enter a new user name or choose an old one
 		
-		// add radio buttons
-		RadioButton enterUsernameButton = new RadioButton("Enter a user name");
-		RadioButton chooseUsernameButton = new RadioButton("Choose a previous user name");
+		/*****************************************Select/Ask user name1**************************/ 
+		displayInfo();
+		ObservableList<String> usernameOption = FXCollections.observableArrayList(usernameArrayList);
+		ComboBox<String> enterUsername1 = new ComboBox<>(usernameOption);
+		enterUsername1.setEditable(true);
 		
-		// group the buttons together
-		ToggleGroup radioButtonsUsernameGroup = new ToggleGroup();
-		enterUsernameButton.setToggleGroup(radioButtonsUsernameGroup);
-		chooseUsernameButton.setToggleGroup(radioButtonsUsernameGroup);
-					
+		// add combox box to the GUI
+		gridPaneForInfo.add(enterUsername1, 1, 1);
 		
-		gridPaneForInfo.add(enterUsernameButton, 1, 1);
-		gridPaneForInfo.add(chooseUsernameButton, 2, 1);
-		
-		enterUsernameButton.setSelected(true);
+		// get user's input for user name 1
+		enterUsername1.valueProperty().addListener((obs, old, n) -> {
+			username1 = n; 		
+		});
 		
 		
-		//add radio butters for user 2 to select an old user name
-		RadioButton enterUsernameButton2 = new RadioButton("Enter a user name");
-		RadioButton chooseUsernameButton2 = new RadioButton("Choose a previous user name");
+		/************************************Select/Ask user name 2*********************************/
+		ComboBox<String> enterUsername2 = new ComboBox<>(usernameOption);
+		enterUsername2.setEditable(true);
 		
-		// group the buttons together
-		ToggleGroup radioButtonsUsernameGroup2 = new ToggleGroup();
-		enterUsernameButton2.setToggleGroup(radioButtonsUsernameGroup2);
-		chooseUsernameButton2.setToggleGroup(radioButtonsUsernameGroup2);
-					
+	
+		// get user's input for user name 1
+		enterUsername2.valueProperty().addListener((obs, old, n) -> {
+			username2 = n; 		
+		});
+		
+	
 		if (numPlayer == 2) {
-			gridPaneForInfo.add(enterUsernameButton2, 1, 4);
-			gridPaneForInfo.add(chooseUsernameButton2, 2, 4);
 			
-			enterUsernameButton2.setSelected(true);
+			// add combox box to the GUI
+			gridPaneForInfo.add(enterUsername2, 1, 3);
 			
 		}
-		
-
-		
-		
-		displayInfo();
-		// newly added create a list view for old users  for player 1
-		ListView<String> lvUsername = new ListView<> (FXCollections.observableArrayList(userInfoArrayList)); // userInfoArrayList
-		
-		// check whether it is an old user name or not (whether radio button is selected)
-		// old user name, get the user name 
-		lvUsername.getSelectionModel().selectedItemProperty().addListener(
-                (ObservableValue<? extends String> ov, String old_val,
-                        String new_val) -> {
-                        	// set the user name (before empty space)
-                        	username1 = new_val.substring(0, new_val.indexOf(" ")); 
-                        	marker1 = new_val.substring(new_val.indexOf("(") + 1, new_val.indexOf(")"));
-		});
+			
 	
-		
-			// newly added create a list view for old users  for player 1
-			ListView<String> lvUsername2 = new ListView<> (FXCollections.observableArrayList(userInfoArrayList)); // userInfoArrayList
-			
-			// check whether it is an old user name or not (whether radio button is selected)
-			// old user name, get the user name 
-			lvUsername2.getSelectionModel().selectedItemProperty().addListener(
-	                (ObservableValue<? extends String> ov, String old_val,
-	                        String new_val) -> {
-	                        	// set the user name (before empty space)
-	                        	username2 = new_val.substring(0, new_val.indexOf(" ")); 
-	                        	marker2 = new_val.substring(new_val.indexOf("(") + 1, new_val.indexOf(")"));
-			});
 
-			
-		
-		
-		// add a textField for player1 marker
-		fieldMarker1 = new TextField();
-		
-		
-		
-		/********************Enter your marker************************/
+		/********************Enter your marker1************************/
 		ObservableList<String> markerOption = FXCollections.observableArrayList(imageOption);
 		ComboBox<String> enterMarker1 = new ComboBox<>(markerOption);
 		enterMarker1.setEditable(true);
@@ -353,194 +337,27 @@ public class MainView {
 			marker1 = n;		
 		});
 		
-		// add radio buttons
-
-		RadioButton enterMarkerButton2 = new RadioButton("Enter a string");
-		RadioButton chooseImageButton2 = new RadioButton("Choose an image");
 		
 		
-		RadioButton rbUS2 = new RadioButton("US");
-		RadioButton rbCN2 = new RadioButton("China");
-		RadioButton rbGB2 = new RadioButton("United Kingdom");
+		/********************Enter your marker2*******************************/
+		ComboBox<String> enterMarker2 = new ComboBox<>(markerOption);
+		enterMarker2.setEditable(true);
 		
 		
-if (numPlayer == 2) {
-			
-			// create image selection for player2
-			
-			// group the buttons together
-			ToggleGroup radioButtonsGroup2 = new ToggleGroup();
-			enterMarkerButton2.setToggleGroup(radioButtonsGroup2);
-			chooseImageButton2.setToggleGroup(radioButtonsGroup2);
-						
-			
-			gridPaneForInfo.add(enterMarkerButton2, 1, 5);
-			gridPaneForInfo.add(chooseImageButton2, 2, 5);
-			
-			enterMarkerButton2.setSelected(true);
-			gridPaneForInfo.add(fieldMarker2, 1, 6);
-			
-			
-			// create rbUS
-			rbUS2.setGraphic(new ImageView(Paths.get("src/us.png").toUri().toString()));
-			rbUS2.setContentDisplay(ContentDisplay.LEFT);
-			rbUS2.setSelected(true);
-			
-			// create rbCN
-			rbCN2.setGraphic(new ImageView(Paths.get("src/cn.png").toUri().toString()));
-			rbCN2.setContentDisplay(ContentDisplay.LEFT);
-			
-			// create rbGB
-			rbGB2.setGraphic(new ImageView(Paths.get("src/gb.png").toUri().toString()));
-			rbGB2.setContentDisplay(ContentDisplay.LEFT);
 		
-			// group the buttons together
-			ToggleGroup radioButtonsImageGroup2 = new ToggleGroup();
-			rbUS2.setToggleGroup(radioButtonsImageGroup2);
-			rbCN2.setToggleGroup(radioButtonsImageGroup2);
-			rbGB2.setToggleGroup(radioButtonsImageGroup2);
+		enterMarker2.valueProperty().addListener((obs, old, n) -> {
+			marker2 = n;		
+		});
+		
+		
+		
+		if (numPlayer == 2) {
 			
-			
-			
+			gridPaneForInfo.add(enterMarker2, 1, 4);
+	
 		} // end of numPlayer == 2
 		
 		/**********************************************************/
-			// newly added enterUsernameButton
-			enterUsernameButton.setOnAction(e -> {
-				if (enterUsernameButton.isSelected()) {
-					// add text field
-					if (!gridPaneForInfo.getChildren().contains(fieldUsername1)) {
-						gridPaneForInfo.add(fieldUsername1, 3,1);
-					}
-				
-					// remove list view
-					if (root.getChildren().contains(lvUsername)) {
-						root.getChildren().remove(lvUsername);
-					}
-					
-					// remove list view
-					if (root.getChildren().contains(lvUsername2)) {
-						root.getChildren().remove(lvUsername2);
-					}
-					
-					if (chooseUsernameButton2.isSelected()) {
-						root.setLeft(lvUsername2);
-					}
-					
-				} // end of enterUsernameButton is selected
-			}); // end of enterUsernameButton
-
-
-			
-			// newly added chooseUsernameButton
-			chooseUsernameButton.setOnAction(e -> {
-				if (chooseUsernameButton.isSelected()) {
-				
-					// add list view
-					if (!root.getChildren().contains(lvUsername)) {
-						root.setLeft(lvUsername);
-					}
-					
-					// remove input field
-					if (gridPaneForInfo.getChildren().contains(fieldUsername1)) {
-						gridPaneForInfo.getChildren().remove(fieldUsername1);
-					}
-				
-				} // end of chooseUsernameButton is selected
-			}); // end of chooseUsernameButton
-
-			
-			
-			// user name for player 2
-			enterUsernameButton2.setOnAction(e -> {
-				if (enterUsernameButton2.isSelected()) {
-					// add text field
-					if (!gridPaneForInfo.getChildren().contains(fieldUsername2)) {
-						gridPaneForInfo.add(fieldUsername2, 3,4);
-					}
-				
-					// remove list view
-					if (root.getChildren().contains(lvUsername)) {
-						root.getChildren().remove(lvUsername);
-					}
-					
-					// remove list view
-					if (root.getChildren().contains(lvUsername2)) {
-						root.getChildren().remove(lvUsername2);
-					}
-					
-					if (chooseUsernameButton.isSelected()) {
-						root.setLeft(lvUsername);
-					}
-					
-				} // end of enterUsernameButton2 is selected
-			}); // end of enterUsernameButton2
-
-
-			
-			// newly added chooseUsernameButton2
-			chooseUsernameButton2.setOnAction(e -> {
-				if (chooseUsernameButton2.isSelected()) {
-				
-					// add list view
-					if (!root.getChildren().contains(lvUsername2)) {
-						root.setLeft(lvUsername2);
-					}
-					
-					
-					
-					// remove input field
-					if (gridPaneForInfo.getChildren().contains(fieldUsername2)) {
-						gridPaneForInfo.getChildren().remove(fieldUsername2);
-					}
-				
-				} // end of enterUsernameButton is selected
-			}); // end of enterUsernameButton
-
-
-		// select enter a marker2
-		enterMarkerButton2.setOnAction(e -> {
-			if (enterMarkerButton2.isSelected()) {
-				// add text field
-				if (!gridPaneForInfo.getChildren().contains(fieldMarker2)) {
-					gridPaneForInfo.add(fieldMarker2, 1, 6);
-				}
-				
-				// remove image buttons
-				if (gridPaneForInfo.getChildren().contains(rbUS2)) {
-					gridPaneForInfo.getChildren().remove(rbUS2);
-				}
-				if (gridPaneForInfo.getChildren().contains(rbCN2)) {
-					gridPaneForInfo.getChildren().remove(rbCN2);
-				}
-				if (gridPaneForInfo.getChildren().contains(rbGB2)) {
-					gridPaneForInfo.getChildren().remove(rbGB2);
-				}
-			} // end of enterMarkerButton is selected
-		});
-		
-		// imageButton2
-		chooseImageButton2.setOnAction(e -> {
-			if (chooseImageButton2.isSelected()) {
-				// remove text field
-				if (gridPaneForInfo.getChildren().contains(fieldMarker2)) {
-					gridPaneForInfo.getChildren().remove(fieldMarker2);
-				}			
-
-				
-				// add image radio buttons
-				if (!gridPaneForInfo.getChildren().contains(rbUS2)) {
-					gridPaneForInfo.add(rbUS2, 1, 6);
-				}
-				if (!gridPaneForInfo.getChildren().contains(rbCN2)) {
-					gridPaneForInfo.add(rbCN2, 2, 6);
-				}
-				if (!gridPaneForInfo.getChildren().contains(rbGB2)) {
-					gridPaneForInfo.add(rbGB2, 3, 6);
-				}
-				
-			} // end of if ImageButton is selected
-		});
 		
 		
 		//quit the game if "quit" is clicked
@@ -554,40 +371,7 @@ if (numPlayer == 2) {
 		// get timeout, user name, marker when game starts
 		startButton.setOnAction(e -> {			
 		try {
-			if (!chooseUsernameButton.isSelected()) {
-				username1 = fieldUsername1.getText().trim();
-				//marker1 = fieldMarker1.getText().trim();
-			}
-			
-			
-			if (!chooseUsernameButton2.isSelected()) {
-				username2 = fieldUsername2.getText().trim();
-				marker2 = fieldMarker2.getText().trim();
-				
-			}
-			
-			
-			
-			
-		
-			
-			if (numPlayer == 2 && chooseImageButton2.isSelected() && !chooseUsernameButton2.isSelected()) {
-				isImageMarker2 = true;
-				// check which image is selected and store its directory
-				if (rbUS2.isSelected()) {
-					marker2 = "us.png";
-				}
-				else if (rbCN2.isSelected()) {
-					marker2 = "cn.png";
-				}
-				else if (rbGB2.isSelected()) {
-					marker2 = "gb.png";
-				}
-			} // end of numPlayer == 2
-			else if (numPlayer == 2 && !chooseUsernameButton2.isSelected() && !chooseImageButton2.isSelected()) {
-				marker2 = fieldMarker2.getText();
-			}
-			
+
 			
 			if (gridPaneForInfo.getChildren().contains(emptyInputsText)) {
 				gridPaneForInfo.getChildren().remove(emptyInputsText);
@@ -604,42 +388,23 @@ if (numPlayer == 2) {
 			emptyErrors = false;
 			duplicateErrors = false;
 			duplicateErrors1 = false;
-			
-			if (lvUsername.getSelectionModel().selectedItemProperty().getValue() == null && chooseUsernameButton.isSelected()) {
-				emptyErrors = true;
-			}
-			if (numPlayer == 2 && lvUsername2.getSelectionModel().selectedItemProperty().getValue() == null && chooseUsernameButton2.isSelected()) {
-				emptyErrors = true;
-			}
 	
-			if (!chooseImageButton2.isSelected()) {
-				isImageMarker2 = false;
-			}
 
 			if (username1.trim().equals("Computer") || username2.trim().equals("Computer")) {
 				emptyErrors = true;
 			}
 			
-			// user name cannot be found in the list
-			if ( ticTacToe.getHashMap().containsKey(username1) && !chooseUsernameButton.isSelected()) {
-				duplicateErrors1 = true;
-			}		
-			if (numPlayer == 2 && ticTacToe.getHashMap().containsKey(username2) && !chooseUsernameButton2.isSelected()) {
-				duplicateErrors1 = true;
-			}
-			
 			// user names and markers cannot be empty
-			if  ( (marker1.trim().length() == 0 && !isImageMarker1 && !chooseUsernameButton.isSelected())  ||( numPlayer == 2 && marker2.trim().length() == 0) && !isImageMarker2 && !chooseUsernameButton2.isSelected()) {
+			if  ( marker1.trim().length() == 0 ||( numPlayer == 2 && marker2.trim().length() == 0) ) {
 				emptyErrors = true;
-				
 				
 			} // end of emptyErrors
 			else {
-				if (username1.trim().length() == 0 && !chooseUsernameButton.isSelected()) {
+				if (username1.trim().length() == 0) {
 					//System.out.println("emptyError1: " + emptyErrors);
 					emptyErrors = true;				
 				}
-				if (numPlayer == 2 && !chooseUsernameButton2.isSelected() && username2.trim().length() == 0 ) {
+				if (numPlayer == 2  && username2.trim().length() == 0 ) {
 					//System.out.println("emptyError2: " + emptyErrors);
 					emptyErrors = true;
 				}
@@ -659,7 +424,7 @@ if (numPlayer == 2) {
 			}
 			// user names and markers cannot be the same
 			if (numPlayer == 2) {
-				if ((username1.trim().length() != 0 && username1.equals(username2)) || ( marker1.trim().length() != 0 && marker1.equals(marker2) && !isImageMarker1 && !isImageMarker2) || (isImageMarker1 && isImageMarker2 && marker1.equals(marker2))) {
+				if ((username1.trim().length() != 0 && username1.equals(username2)) || ( marker1.trim().length() != 0 && marker1.equals(marker2) )) {
 					duplicateErrors = true;
 					if (emptyErrors) {
 						if (numPlayer == 2) {
@@ -734,12 +499,11 @@ if (numPlayer == 2) {
 					
 						
 						// if we choose a user name, use the original player object				
-						if (chooseUsernameButton.isSelected()) {
+						if (ticTacToe.getHashMap().containsKey(username1)) {
 							// update the marker
-							//System.out.println(ticTacToe.getHashMap().get(username1).getMarker());
 							ticTacToe.getHashMap().get(username1).setMarker(marker1);
+							// add the player object to the player list
 							ticTacToe.player.add(0,ticTacToe.getHashMap().get(username1));
-							System.out.println(ticTacToe.getHashMap().get(username1).getMarker());
 						}
 						else {
 							ticTacToe.createPlayer(username.get(humanPlayerID-1), marker.get(humanPlayerID-1), humanPlayerID);	
@@ -763,8 +527,10 @@ if (numPlayer == 2) {
 					ticTacToe.setIsHumanPlayer(true);
 					
 					// if we choose a user name, use the original player object				
-					if (chooseUsernameButton.isSelected()) {
+					if (ticTacToe.getHashMap().containsKey(username1)) {
 						// update the marker
+						ticTacToe.getHashMap().get(username1).setMarker(marker1);
+						// add the player object to the player list
 						ticTacToe.player.add(0,ticTacToe.getHashMap().get(username1));
 					}
 					else {
@@ -772,12 +538,14 @@ if (numPlayer == 2) {
 					}
 					
 					// if we choose a user name2, use the original player object				
-					if (chooseUsernameButton2.isSelected()) {
+					if (ticTacToe.getHashMap().containsKey(username2)) {
 						// update the marker
+						ticTacToe.getHashMap().get(username2).setMarker(marker2);
+						// add the player object to the player list
 						ticTacToe.player.add(1,ticTacToe.getHashMap().get(username2));
 					}
 					else {
-						// update the marker
+						// create a player
 						ticTacToe.createPlayer(username.get(1), marker.get(1), 2);
 					}
 					
@@ -897,16 +665,14 @@ if (numPlayer == 2) {
 		} // end of timeout
 		
 			
-			
-			
-			
+		/**************************add check user play results**************************/
 			
 		
-		root.setBottom(vBoxForGame);
-		root.setPadding(new Insets(50));
+//		root.setBottom(vBoxForGame);
+//		root.setPadding(new Insets(50));
 		
 		root.setBottom(vBoxForGame);
-		root.setPadding(new Insets(50));
+		
 		
 		// create two buttons
 		Button playAgainButton = new Button("Play Again");
@@ -979,6 +745,7 @@ if (numPlayer == 2) {
 		 Set set = ticTacToe.getHashMap().entrySet();
 	      Iterator iterator = set.iterator();
 	      userInfoArrayList.clear();
+	      usernameArrayList.clear();
 	      while(iterator.hasNext()) {
 	         Map.Entry mentry = (Map.Entry)iterator.next();
 //	         System.out.print("key: "+ mentry.getKey() + " & Value: ");
@@ -988,6 +755,8 @@ if (numPlayer == 2) {
 	         
 	         userInfoArrayList.add(((Player) mentry.getValue()).getUsername()  + " (" + ((Player) mentry.getValue()).getMarker() + ") Win-Lose: " 
 	         + ((Player) mentry.getValue()).getWin() + "-"+ ((Player) mentry.getValue()).getLose());
+	         
+	         usernameArrayList.add(((Player) mentry.getValue()).getUsername());
 	      }
 	} // end of displayInfo
 }
