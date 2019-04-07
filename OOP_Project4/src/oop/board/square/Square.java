@@ -2,13 +2,10 @@ package oop.board.square;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
-
 import java.util.Random;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Pos;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 
@@ -20,7 +17,7 @@ import oop.board.BasicGameBoard;
 
 import oop.view.*;
 
-public class Square extends BorderPane{
+public class Square extends BorderPane {
 	private int squareID;
 	private String marker;
 	private boolean isMarked = false;
@@ -29,11 +26,7 @@ public class Square extends BorderPane{
 	
 	private String computerMarker;
 	private int currentPlayerID;
-	
 
-	
-	private ArrayList<Timeline> timerLists = new ArrayList<>();
-	
 	public Square (int id, String marker) {
 		squareID = id;
 		this.marker = marker;
@@ -57,59 +50,15 @@ public class Square extends BorderPane{
 	// update marker
 	public void setMarker(String marker, boolean isReset) {
 		this.marker = marker;
-
 		if (!isReset) {
 			isMarked = true;
-			//System.out.println("computer marker outside: " + marker);
-			//System.out.println("computer move: " + MainView.getIsAIMove());
-			// display a text when computer moves
-			if (MainView.getIsAIMove()) {
-				//System.out.println("computer marker: " + marker);
-				this.setCenter(new Text(marker));
-				if (marker.equals("cn.png") || marker.equals("us.png") || marker.equals("gb.png")) {
-					//System.out.println(" my marker");
-					
-					this.setCenter(new ImageView(Paths.get("src/" + marker).toUri().toString()));
-				}
-			}
-			// display a text when a human with text marker moves
-			else if (!MainView.getIsAIMove()) {
-				//System.out.println("currentPlayerID:  " + currentPlayerID);
-				
-				// check if the human has a text marker
-				if (currentPlayerID == 1 && !MainView.getIsImageMarker1()) {
-					this.setCenter(new Text(marker));
-					if (marker.equals("cn.png") || marker.equals("us.png") || marker.equals("gb.png")) {
-						//System.out.println(" my marker");
-						
-						this.setCenter(new ImageView(Paths.get("src/" + marker).toUri().toString()));
-					}
-				}
-				else if (currentPlayerID == 2 && !MainView.getIsImageMarker2()) {
-					
-					this.setCenter(new Text(marker));
-					if (marker.equals("cn.png") || marker.equals("us.png") || marker.equals("gb.png")) {
-						//System.out.println(" my marker");
-						
-						this.setCenter(new ImageView(Paths.get("src/" + marker).toUri().toString()));
-					}
-				}
-				else if (currentPlayerID == 1 && MainView.getIsImageMarker1()) {
-					this.setCenter(new ImageView(Paths.get("src/" + marker).toUri().toString()));
-				}
-				else if (currentPlayerID == 2 && MainView.getIsImageMarker2()) {
-					this.setCenter(new ImageView(Paths.get("src/" + marker).toUri().toString()));
-				}
-				
-			} // end of human moves display marker
-			
+			this.setCenter(new Text(marker));
 			
 		} // end of !isReset
 		else {
 			isMarked = false;
 			this.setCenter(new Text(marker));
-		} // end of isReset
-		
+		} // end of isReset	
 		
 	}
 	
@@ -126,7 +75,7 @@ public class Square extends BorderPane{
 		if (MainView.ticTacToe.getGameState() == 0) {
 			// get currentPlayerID
 			currentPlayerID = MainView.ticTacToe.getPlayerID();
-			//System.out.println(MainView.ticTacToe.player.get(currentPlayerID -1));
+
 			String currentMarker = MainView.ticTacToe.player.get(currentPlayerID -1).getMarker();
 			computerMarker = "X";
 			if (MainView.ticTacToe.getNumberPlayers() == 1) {
@@ -137,24 +86,19 @@ public class Square extends BorderPane{
 			// mark the square if the square is available 
 			if (!this.getIsMarked()) {
 				
-				
-				
-				//if (MainView.getTimeout() > 0) {
+				// stop the timer in MainView
 				if (MainView.getTimeout() > 0) {
 					MainView.timer.stop();
 				}		
-					// just removed old codes for timer
-				
 				
 				setMarker(currentMarker, false);
 				int gameState = MainView.ticTacToe.determineWinner();
-				//System.out.println(timerSquare + "   human player");
+
 				// check game status
 				if (gameState != 0) {
 					// stop the timer when the game is over
 					if (MainView.timerSquare != null ) {
 						MainView.timerSquare.stop();
-						//System.out.println(timerSquare +" stops after human plays");
 					}
 						
 					checkGameIsOver(gameState);
@@ -166,10 +110,8 @@ public class Square extends BorderPane{
 					if (!MainView.getIsAIMove()) {
 						// newly add
 						currentPlayerID = MainView.ticTacToe.setCurrentPlayer(currentPlayerID);
-
 					}
-					// newly remove
-					//currentPlayerID = MainView.ticTacToe.setCurrentPlayer(currentPlayerID);
+	
 					MainView.turnLabel.setText(MainView.ticTacToe.player.get(currentPlayerID -1).getUsername() + "'s turn to play.");
 					
 					
@@ -202,17 +144,14 @@ public class Square extends BorderPane{
 						
 					} // end of "if we have two players"
 					
-					
-					
 					// check if it is computer's turn. If it is, generate moves 
-					//System.out.println("currentID when going on: " + currentPlayerID);
-					if (MainView.ticTacToe.getNumberPlayers() == 1 && currentPlayerID == 3-MainView.getHumanPlyaerID()) {
+					if (MainView.ticTacToe.getNumberPlayers() == 1 && currentPlayerID == 2) {
 						// computer makes move and check game results
 						AI_Move_CheckWin();		
 						MainView.setIsAIMove(true);
 						
 						//add a timer
-//						// add timeout
+						// add timeout
 						if (MainView.getTimeout() > 0) {
 							if (MainView.ticTacToe.getGameState() == 0) {
 
@@ -221,12 +160,9 @@ public class Square extends BorderPane{
 							
 								if (MainView.timerSquare != null) {
 									MainView.timerSquare.stop();
-									//System.out.println(MainView.timerSquare +" stops after computer plays");
 								}
 								
-
 								MainView.timerSquare = new Timeline(new KeyFrame(Duration.millis(MainView.getTimeout()*1000), e-> {
-								timerLists.add(MainView.timerSquare);
 								//System.out.println(MainView.timerSquare +" starts");
 									// when the timer is called, the previous player does not make a move, so we need to change the player ID here
 									currentPlayerID = MainView.ticTacToe.setCurrentPlayer(currentPlayerID);
@@ -238,7 +174,6 @@ public class Square extends BorderPane{
 										if (MainView.ticTacToe.getGameState() == 0) {
 											AI_Move_CheckWin();
 										}
-										MainView.setIsAIMove(true);
 										// when the game is over
 										if (MainView.ticTacToe.getGameState() != 0) {
 											// stop the timer when game is over
@@ -297,14 +232,13 @@ public class Square extends BorderPane{
 		
 		int computerRow = rand.nextInt(3); 
 		int computerCol = rand.nextInt(3);
-		while (!MainView.ticTacToe.updatePlayerMove(computerRow, computerCol, 3-MainView.getHumanPlyaerID())) {
+		while (!MainView.ticTacToe.updatePlayerMove(computerRow, computerCol, 2)) {
 			computerRow = rand.nextInt(3); 
 			computerCol = rand.nextInt(3);
 		}
 			MainView.setIsAIMove(true);
 			BasicGameBoard.basicTwoD[computerRow][computerCol].setMarker(computerMarker, false);
 
-		// newly add
 		currentPlayerID = MainView.ticTacToe.getPlayerID();
 		// get game state
 		int gameState1 = MainView.ticTacToe.getGameState();
@@ -312,11 +246,8 @@ public class Square extends BorderPane{
 		if (gameState1 != 0) {
 
 			if (MainView.getTimeout() > 0) {
-				if (MainView.timerSquare != null) {
-					//System.out.println(MainView.timerSquare + "stops");					
+				if (MainView.timerSquare != null) {				
 					MainView.timerSquare.stop();
-
-					//clearTimer();
 				}
 					
 			}
@@ -324,7 +255,6 @@ public class Square extends BorderPane{
 		}
 
 		else {
-			// change turn newly changes  MainView.turnLabel.setText(MainView.ticTacToe.player.get(MainView.ticTacToe.setCurrentPlayer(currentPlayerID)-1).getUsername() + "'s turn to play.");
 			MainView.turnLabel.setText(MainView.ticTacToe.player.get(currentPlayerID-1).getUsername() + "'s turn to play.");
 		}
 	}
@@ -335,10 +265,11 @@ public class Square extends BorderPane{
 		if ( gameState == 1 || gameState == 2) {
 			MainView.turnLabel.setText(MainView.ticTacToe.player.get(currentPlayerID-1).getUsername() + " won the game.");
 
-			if ( MainView.ticTacToe.getNumberPlayers() == 2 || (MainView.ticTacToe.getNumberPlayers() == 1 && currentPlayerID == MainView.getHumanPlyaerID() ) ) {
+			if ( MainView.ticTacToe.getNumberPlayers() == 2 || (MainView.ticTacToe.getNumberPlayers() == 1 && currentPlayerID == 1 ) ) {
+				System.out.println("music plays");
 				playSound("src/winSound.mp3");
 			}
-			else if (MainView.ticTacToe.getNumberPlayers() == 1 && currentPlayerID != MainView.getHumanPlyaerID()) {
+			else if (MainView.ticTacToe.getNumberPlayers() == 1 && currentPlayerID != 1) {
 				playSound("src/loseSound.mp3");
 			}
 			

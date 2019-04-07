@@ -1,6 +1,5 @@
 package oop.view;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -13,7 +12,6 @@ import oop.controller.*;
 import oop.player.Player;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -22,14 +20,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
@@ -59,18 +52,14 @@ public class MainView {
 	
 	private boolean emptyErrors = false;
 	private boolean duplicateErrors = false;
-	private boolean duplicateErrors1 = false;
 	
     private final int windowWidth = 1200; 
     private final int windowHeight = 900;
     private Text emptyInputsText = new Text ("Fill in user name and marker. Computer cannot be username.");	
     private Text timeStringErrorText = new Text ("Time out must be an integer");
     private Text duplicateInputsText = new Text ("Two players cannot use the same username or marker.");
-    private Text duplicateInputsText1 = new Text("User name is in the list already.");
     private Text emptySelectionFirstScene = new Text ("Please select all the fields below.");
     
-    private static boolean isImageMarker1 = false;
-    private static boolean isImageMarker2 = false;
     
     private String username1, username2, marker1, marker2;
     public static Timeline timerSquare;
@@ -107,8 +96,6 @@ public class MainView {
 		//clear user name and marker lists
 		username.clear();
 		marker.clear();
-		isImageMarker1 = false;
-		isImageMarker2 = false;
 		isAIMove = false;
 		username1 = username2 = marker1 = marker2 ="";
 		checkOldUser.setText("Check previous game results");
@@ -118,16 +105,18 @@ public class MainView {
 	public StackPane getNumPlayers() {
 		this.pane = new StackPane();
 		
-		// create a pane for buttons
-		VBox vBoxForButtons = new VBox(30);
+		// create a pane for the game menu
+		VBox vBoxForButtons = new VBox(20);
 		
-		
+		/*********************Ask # of players **********************/
+		// provide options for users
 		ObservableList<String> numberOfPlayersOption = 
 			    FXCollections.observableArrayList(
 			        "Play against computer",
 			        "Play with another human"
-			    );
+		);
 		
+		// create a comboBox to ask the # of players
 		ComboBox<String> selectNumberOfPlayers = new ComboBox<>(numberOfPlayersOption);
 		selectNumberOfPlayers.setPromptText("Select who you want to play with");
 		selectNumberOfPlayers.setEditable(false);
@@ -141,6 +130,9 @@ public class MainView {
 		vBoxForButtons.getChildren().addAll(selectNumberOfPlayers, continueButton, quitButton);	
 		vBoxForButtons.setAlignment(Pos.CENTER);
 		
+		
+		/*************************Ask version of games ********************/
+		
 		pane.getChildren().addAll(vBoxForButtons);
 		
 		//quit the game if "quit" is clicked
@@ -149,7 +141,7 @@ public class MainView {
 			System.exit(0);
 		});
 		
-		
+		// update the # of players
 		selectNumberOfPlayers.valueProperty().addListener((obs, old, n) -> {
 			if (n.equals("Play against computer")) {
 				numPlayer = 1;
@@ -159,7 +151,7 @@ public class MainView {
 			
 		});
 		
-		// get the number of players
+		// check whether the player can move on to the next game menu
 		continueButton.setOnAction(e -> {
 			if (!selectNumberOfPlayers.getSelectionModel().isEmpty()) {
 				// remove "ask number of players" 
@@ -184,32 +176,42 @@ public class MainView {
 	// get timeout, user names, and markers
 	public void getPlayerInfo(VBox vBoxForButtons) {
 
+		VBox VBoxRootLeft = new VBox(10);
+		// add a button to check previous game results
+		if (!VBoxRootLeft.getChildren().contains(checkOldUser)) {
+			VBoxRootLeft.getChildren().add(checkOldUser);
+		}
+		
+		root.setLeft(VBoxRootLeft);
 		displayInfo();
-		// newly added create a list view for old users  for player 1
+		// a list for previous game results
 		lvUsername = new ListView<> (FXCollections.observableArrayList(userInfoArrayList)); // userInfoArrayList
 		
+		// show/hide previous game results
 		checkOldUser.setOnAction (e -> {
 			if (checkOldUser.getText().contains("Check")) {
-				root.setLeft(lvUsername);
+				VBoxRootLeft.getChildren().add(lvUsername);
+				
 				checkOldUser.setText("Hide previous game results");
 			}
 			else {
-				if (root.getChildren().contains(lvUsername)) {
-					root.getChildren().remove(lvUsername);
+				if (VBoxRootLeft.getChildren().contains(lvUsername)) {
+					VBoxRootLeft.getChildren().remove(lvUsername);
 				}
 				checkOldUser.setText("Check previous game results");
 			}
 			
 		});
 		
-		// create two buttons: continue and quit
+		// create two buttons in the second game menu: continue and quit 
 		Button startButton = new Button("Start the Game");
 		Button quitButton = new Button("Quit the game");
 		
 		// add buttons to the pane
-		vBoxForButtons.getChildren().addAll(checkOldUser, startButton, quitButton);		
+		vBoxForButtons.getChildren().addAll(startButton, quitButton);		
 		vBoxForButtons.setAlignment(Pos.CENTER);
 		
+		// create a new grid pane for player info
 		GridPane gridPaneForInfo = new GridPane();
 
 		gridPaneForInfo.setHgap(20);
@@ -226,33 +228,9 @@ public class MainView {
 		gridPaneForInfo.add(fieldTimeOut, 1, 0);
 		vBoxForButtons.getChildren().add(0, gridPaneForInfo);
 		
-		TextField fieldUsername1;
-		TextField fieldUsername2 = new TextField();
-		TextField fieldMarker1;
-		TextField fieldMarker2 = new TextField();
-		
-		// create new buttons
-		RadioButton playFirst = new RadioButton("Yes");
-		RadioButton playSecond = new RadioButton("No");
-		
+		// add labels
 		// when there is one player
 		if (numPlayer == 1) {
-			
-			// ask whether the human wants to play the first
-			//Label wantGoFirstLabel = new Label ("Do you want to play first?");
-			
-				
-			// group the buttons together
-			//ToggleGroup radioButtonsGroup = new ToggleGroup();
-			//playFirst.setToggleGroup(radioButtonsGroup);
-		//	playSecond.setToggleGroup(radioButtonsGroup);
-			
-			// add buttons to the pane
-			//gridPaneForInfo.add(wantGoFirstLabel, 0, 4);
-			//gridPaneForInfo.add(playFirst, 1, 4);
-			//gridPaneForInfo.add(playSecond, 2, 4);
-			// set a default selection
-			playFirst.setSelected(true);
 			
 			Label humanPlayerUsernameLabel = new Label ("Give yourself a user name: ");
 			gridPaneForInfo.add(humanPlayerUsernameLabel, 0, 1);
@@ -281,17 +259,9 @@ public class MainView {
 	
 		} // end of two users
 		
-		// add a textField for player1 user name
-		fieldUsername1 = new TextField();
 		
-		// add username1 to field
-		//gridPaneForInfo.add(fieldUsername1, 3, 1);
-		
-		
-		// newly added
-		// add radio buttons for users to choose to enter a new user name or choose an old one
-		
-		/*****************************************Select/Ask user name1**************************/ 
+		/*****************************************Select/Ask user name 1**************************/ 
+		// create a list for all the previous user names
 		displayInfo();
 		ObservableList<String> usernameOption = FXCollections.observableArrayList(usernameArrayList);
 		ComboBox<String> enterUsername1 = new ComboBox<>(usernameOption);
@@ -300,7 +270,7 @@ public class MainView {
 		// add combox box to the GUI
 		gridPaneForInfo.add(enterUsername1, 1, 1);
 		
-		// get user's input for user name 1
+		// get user name 1
 		enterUsername1.valueProperty().addListener((obs, old, n) -> {
 			username1 = n; 		
 		});
@@ -311,14 +281,13 @@ public class MainView {
 		enterUsername2.setEditable(true);
 		
 	
-		// get user's input for user name 1
+		// get user name 2
 		enterUsername2.valueProperty().addListener((obs, old, n) -> {
 			username2 = n; 		
 		});
 		
-	
-		if (numPlayer == 2) {
-			
+		// add "enter user name 2" to GUI
+		if (numPlayer == 2) {	
 			// add combox box to the GUI
 			gridPaneForInfo.add(enterUsername2, 1, 3);
 			
@@ -336,126 +305,90 @@ public class MainView {
 		enterMarker1.valueProperty().addListener((obs, old, n) -> {
 			marker1 = n;		
 		});
-		
-		
+			
 		
 		/********************Enter your marker2*******************************/
 		ComboBox<String> enterMarker2 = new ComboBox<>(markerOption);
 		enterMarker2.setEditable(true);
 		
-		
-		
 		enterMarker2.valueProperty().addListener((obs, old, n) -> {
 			marker2 = n;		
 		});
-		
-		
-		
-		if (numPlayer == 2) {
 			
+		
+		if (numPlayer == 2) {		
 			gridPaneForInfo.add(enterMarker2, 1, 4);
 	
 		} // end of numPlayer == 2
 		
 		/**********************************************************/
+			
 		
-		
-		//quit the game if "quit" is clicked
+		// quit the game if "quit" is clicked
 		quitButton.setOnAction(e -> {
 			ticTacToe.saveInfo();
 			System.exit(0);
-			});
-		
-		
+			});		
 		
 		// get timeout, user name, marker when game starts
 		startButton.setOnAction(e -> {			
 		try {
 
-			
-			if (gridPaneForInfo.getChildren().contains(emptyInputsText)) {
-				gridPaneForInfo.getChildren().remove(emptyInputsText);
+			// remove previous errors
+			if (vBoxForButtons.getChildren().contains(emptyInputsText)) {
+				vBoxForButtons.getChildren().remove(emptyInputsText);
 				
 			} // end of remove errors
-			if (gridPaneForInfo.getChildren().contains(duplicateInputsText)) {
-				gridPaneForInfo.getChildren().remove(duplicateInputsText);
+			if (vBoxForButtons.getChildren().contains(duplicateInputsText)) {
+				vBoxForButtons.getChildren().remove(duplicateInputsText);
 			}
-			if (gridPaneForInfo.getChildren().contains(duplicateInputsText1)) {
-				gridPaneForInfo.getChildren().remove(duplicateInputsText1);
+			// remove timeout is not an integer error
+			if (gridPaneForInfo.getChildren().contains(timeStringErrorText)) {
+				gridPaneForInfo.getChildren().remove(timeStringErrorText);
 			}
-			
-			
+
+			// reset all the errors to false
 			emptyErrors = false;
 			duplicateErrors = false;
-			duplicateErrors1 = false;
 	
-
+			// Computer cannot be the user name
 			if (username1.trim().equals("Computer") || username2.trim().equals("Computer")) {
 				emptyErrors = true;
 			}
 			
 			// user names and markers cannot be empty
-			if  ( marker1.trim().length() == 0 ||( numPlayer == 2 && marker2.trim().length() == 0) ) {
+			if  (username1.trim().length() == 0 || marker1.trim().length() == 0 ||
+				(numPlayer == 2 && (username2.trim().length() == 0 || marker2.trim().length() == 0))) {
 				emptyErrors = true;
 				
 			} // end of emptyErrors
-			else {
-				if (username1.trim().length() == 0) {
-					//System.out.println("emptyError1: " + emptyErrors);
-					emptyErrors = true;				
-				}
-				if (numPlayer == 2  && username2.trim().length() == 0 ) {
-					//System.out.println("emptyError2: " + emptyErrors);
-					emptyErrors = true;
-				}
-			}
 			
 			if (emptyErrors) {
-				gridPaneForInfo.add(emptyInputsText, 0, 7);
+				vBoxForButtons.getChildren().add(1, emptyInputsText);
 			}
 			
-			
-			if (numPlayer == 1 && duplicateErrors1) {
-				gridPaneForInfo.add(duplicateInputsText1, 0, 8);
-			}
-			
-			if (numPlayer == 2 && duplicateErrors1) {
-				gridPaneForInfo.add(duplicateInputsText1, 0, 9);
-			}
 			// user names and markers cannot be the same
 			if (numPlayer == 2) {
-				if ((username1.trim().length() != 0 && username1.equals(username2)) || ( marker1.trim().length() != 0 && marker1.equals(marker2) )) {
+				if ((username1.trim().length() != 0 && username1.equals(username2)) || ( marker1.trim().length() != 0 && marker1.equals(marker2))) {
 					duplicateErrors = true;
 					if (emptyErrors) {
-						if (numPlayer == 2) {
-							gridPaneForInfo.add(duplicateInputsText, 0, 8);
-						}
-						
-						
+							vBoxForButtons.getChildren().add(2, duplicateInputsText);
 					}// end of emptyErrors
 					else {
-
-						if (numPlayer == 2) {
-							gridPaneForInfo.add(duplicateInputsText, 0, 7);
-						}
-						
+							vBoxForButtons.getChildren().add(1, duplicateInputsText);
 					}
 					
 				} // end of duplicateErrors
 			} // end of numPlayer == 2
-			
-			//System.out.println("empty errors: " + emptyErrors + " duplicateErrors: " + duplicateErrors);
-			
-//			System.out.println(emptyErrors + " " + duplicateErrors + "  " + duplicateErrors1);
-			
+
+			// get time out
 			timeout =Integer.parseInt(fieldTimeOut.getText());
-			//System.out.println(username1);
-			if (!duplicateErrors && !emptyErrors && !duplicateErrors1) {
-				// one player, she/he goes first
+
+			if (!duplicateErrors && !emptyErrors) {
+
 				if (numPlayer == 1) {
-					if (playFirst.isSelected()) {
 						humanPlayerID = 1;
-						
+						// add user name and marker
 						username.add(username1);
 						marker.add(marker1);
 						username.add("Computer");
@@ -463,19 +396,6 @@ public class MainView {
 							marker.add("X");
 						else
 							marker.add("O");
-						
-					} else {
-						humanPlayerID = 2;
-						// one player, she/he goes second
-						if (!marker1.equals("X"))
-							marker.add("X");
-						else
-							marker.add("O");
-						username.add("Computer");
-						username.add(username1);
-						marker.add(marker1);
-					}
-					
 				} // end of one player
 				
 				
@@ -494,33 +414,23 @@ public class MainView {
 				// one player
 				if (numPlayer == 1) {
 					// human first
-					if (humanPlayerID == 1) {
-						ticTacToe.setIsHumanPlayer(true);
-					
-						
-						// if we choose a user name, use the original player object				
-						if (ticTacToe.getHashMap().containsKey(username1)) {
-							// update the marker
-							ticTacToe.getHashMap().get(username1).setMarker(marker1);
-							// add the player object to the player list
-							ticTacToe.player.add(0,ticTacToe.getHashMap().get(username1));
-						}
-						else {
-							ticTacToe.createPlayer(username.get(humanPlayerID-1), marker.get(humanPlayerID-1), humanPlayerID);	
-						}
-						
-						ticTacToe.setIsHumanPlayer(false);
-						ticTacToe.createPlayer(username.get(2-humanPlayerID), marker.get(2-humanPlayerID), 3-humanPlayerID);
+					ticTacToe.setIsHumanPlayer(true);
+
+					// if we choose a user name, use the original player object				
+					if (ticTacToe.getHashMap().containsKey(username1)) {
+						// update the marker
+						ticTacToe.getHashMap().get(username1).setMarker(marker1);
+						// add the player object to the player list
+						ticTacToe.player.add(0,ticTacToe.getHashMap().get(username1));
 					}
-					// human second
 					else {
-						ticTacToe.setIsHumanPlayer(false);
-						ticTacToe.createPlayer(username.get(2-humanPlayerID), marker.get(2-humanPlayerID), 3-humanPlayerID);
-						ticTacToe.setIsHumanPlayer(true);
-						ticTacToe.createPlayer(username.get(humanPlayerID-1), marker.get(humanPlayerID-1), humanPlayerID);		
+						ticTacToe.createPlayer(username.get(0), marker.get(0), 1);	
 					}
+					// create a computer player
+					ticTacToe.setIsHumanPlayer(false);
+					ticTacToe.createPlayer(username.get(1), marker.get(1), 2);
 					
-				} // end of one player
+				} // end of create one human player
 				// two players
 				else {
 					
@@ -549,7 +459,7 @@ public class MainView {
 						ticTacToe.createPlayer(username.get(1), marker.get(1), 2);
 					}
 					
-				}
+				} // end of create two human players
 				
 				// clear all the elements in pane
 				pane.getChildren().clear();
@@ -561,7 +471,7 @@ public class MainView {
 			} // end of error exists
 		} catch (NumberFormatException error){
 
-			
+			// add "time out is a string" error
 			if (gridPaneForInfo.getChildren().contains(timeStringErrorText)) {
 				gridPaneForInfo.getChildren().remove(timeStringErrorText);
 			}
@@ -572,7 +482,7 @@ public class MainView {
 		
 			
 			
-		});
+		}); // end of try block 
 	} // end of getPlayerInfo
 	
 	
@@ -582,25 +492,15 @@ public class MainView {
 		root.setTop(new CustomPane("Welcome to Tic Tac Toe!"));
 		
 		// show the game board
-		root.setCenter(ticTacToe.getGameDisplay());
-		
-		
-		// computer makes first moves if necessary
-		if (humanPlayerID == 2 && numPlayer == 1) {
-			isAIMove = true;
-			// generate row & column, call updatePlayerMove
-			AIMove();
-			
-		} // end of  computer first move
-		
-					
+		root.setCenter(ticTacToe.getGameDisplay());		
+						
 		// show whose turn now
 		turnLabel = new Label (username.get(ticTacToe.getPlayerID()-1) + "'s turn to play.");
-		 quitBtn = new Button ("Quit the game");
+		
+		// create a quit button in the middle of the game
+		quitBtn = new Button ("Quit the game");
 		
 		vBoxForGame.getChildren().addAll(turnLabel, quitBtn);
-		
-		
 		vBoxForGame.setAlignment(Pos.CENTER);
 		
 		quitBtn.setOnAction(e -> {
@@ -608,9 +508,7 @@ public class MainView {
 			System.exit(0);
 		});
 		
-		
-		
-		
+		/********************** add time out *************************/
 		// add timeout
 		if (timeout > 0) {
 			// start the timer, when time is up, change playerID and restart animation
@@ -630,21 +528,22 @@ public class MainView {
 					if (ticTacToe.getGameState() != 0) {
 						// stop the timer when game is over
 						timer.stop();
+						
 						// show the human lost the game
-
+						System.out.println("HUman lost");
 						Square.playSound("src/loseSound.mp3");
 						
-						turnLabel.setText(username.get(humanPlayerID-1) + " lost the game.");
-						// update win/lose
+						turnLabel.setText(username.get(0) + " lost the game.");
+						// update the lose condition for the human player and store results
 						ticTacToe.player.get(0).setLose();
 						ticTacToe.getHashMap().put(username.get(0), ticTacToe.player.get(0));
 						
-						
+						// remove the quit button for the middle of game when the game is over
 						if (vBoxForGame.getChildren().contains(quitBtn)) {
 							vBoxForGame.getChildren().remove(quitBtn);
 						}
 						
-						// show the two buttons (play again and quit)
+						// show the two buttons (play again and quit) after the game is over
 						Square.hBox.setAlignment(Pos.CENTER);
 						MainView.vBoxForGame.getChildren().add(Square.hBox);
 					} // end of game over
@@ -667,10 +566,6 @@ public class MainView {
 			
 		/**************************add check user play results**************************/
 			
-		
-//		root.setBottom(vBoxForGame);
-//		root.setPadding(new Insets(50));
-		
 		root.setBottom(vBoxForGame);
 		
 		
@@ -708,16 +603,17 @@ public class MainView {
 		return humanPlayerID;
 	}
 	
+	// computer makes a random move
 	public void AIMove() {
 		Random rand = new Random(); 
 		int computerRow = rand.nextInt(3); 
 		int computerCol = rand.nextInt(3);
-		while (!MainView.ticTacToe.updatePlayerMove(computerRow, computerCol, 3-humanPlayerID)) {
+		while (!MainView.ticTacToe.updatePlayerMove(computerRow, computerCol, 2)) {
 			computerRow = rand.nextInt(3); 
 			computerCol = rand.nextInt(3);
 		}
-		//System.out.println("computer marker in MainView: " + marker.get(1));
-		BasicGameBoard.basicTwoD[computerRow][computerCol].setMarker(marker.get(2-humanPlayerID), false);
+
+		BasicGameBoard.basicTwoD[computerRow][computerCol].setMarker(marker.get(1), false);
 	}
 	
 	public static int getTimeout() {
@@ -732,14 +628,6 @@ public class MainView {
 		isAIMove = isMove;
 	}
 	
-	public static boolean getIsImageMarker1 () {
-		return isImageMarker1;
-	}
-	
-	public static boolean getIsImageMarker2 () {
-		return isImageMarker2;
-	}
-	
 	// display user information
 	public void displayInfo() {
 		 Set set = ticTacToe.getHashMap().entrySet();
@@ -747,23 +635,20 @@ public class MainView {
 	      userInfoArrayList.clear();
 	      usernameArrayList.clear();
 	      while(iterator.hasNext()) {
-	         Map.Entry mentry = (Map.Entry)iterator.next();
-//	         System.out.print("key: "+ mentry.getKey() + " & Value: ");
-//	         System.out.println(mentry.getValue());
+	         Map.Entry mentry = (Map.Entry)iterator.next();	
 	         
 	         // store info into the array list
-	         
 	         userInfoArrayList.add(((Player) mentry.getValue()).getUsername()  + " (" + ((Player) mentry.getValue()).getMarker() + ") Win-Lose: " 
 	         + ((Player) mentry.getValue()).getWin() + "-"+ ((Player) mentry.getValue()).getLose());
 	         
 	         usernameArrayList.add(((Player) mentry.getValue()).getUsername());
 	      }
 	} // end of displayInfo
-}
+} // end of class MainView
 
 
 
-// customePane
+// customePane for "Welcome to Tic Tac Toe"
 class CustomPane extends StackPane {
 	public CustomPane(String title) {
 		Text textTitle = new Text(title);
@@ -771,4 +656,3 @@ class CustomPane extends StackPane {
 		textTitle.getStyleClass().add("textTitle");
 	}
 }
-

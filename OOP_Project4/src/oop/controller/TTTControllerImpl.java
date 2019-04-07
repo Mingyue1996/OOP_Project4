@@ -116,7 +116,7 @@ public class TTTControllerImpl implements TTTControllerInterface {
 		if ((row == 0 || row == 1 || row == 2) && 
 			(col == 0 || col == 1 || col == 2) && 
 			(currentPlayer == 1 || currentPlayer == 2) &&
-			(updatePlayerMove(currentPlayer))) {
+			(updatePlayerMove(row, col, currentPlayer))) {
 			return true;
 		}
 			
@@ -174,23 +174,6 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	/*
 	 * call makeMove() in player method and update moves
 	 * */
-	public boolean updatePlayerMove(int playerID) {
-		marker = player.get(playerID-1).getMarker();
-		if (basicGameBoard.markBoard(newMoveRow, newMoveCol, marker)) {
-			player.get(playerID-1).makeMove(newMoveRow, newMoveCol);
-			// check win
-			// change turn if the game is in progress
-			if (determineWinner() == 0) {
-				// if no win/tie, change turn
-				setCurrentPlayer(playerID);
-			}
-			
-			return true;
-		}
-		System.out.println("Invalid move. The location has been marked. Try again.");
-		return false;
-       
-	} // end of updatePlayerMove
 	
 	public boolean updatePlayerMove(int row, int col, int playerID) {
 		marker = player.get(playerID-1).getMarker();
@@ -261,47 +244,6 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	public int getNumberPlayers () {
 		return numberPlayer;
 	}
-	
-	// get player's row and column
-	public void getRowCol (BufferedReader in)  throws IOException {
-		// if there is an input
-		if (in.ready()) {
-			// get the input and remove leading and trailing white spaces
-			String inString = (in.readLine()).trim();
-			String[] inStringArray = inString.split("\\s+"); 
-			
-			// check if there are exactly two inputs
-			if (inStringArray.length == 2) {
-				
-				// check if inputs are numbers
-				try {
-					newMoveRow = Integer.parseInt(inStringArray[0]);
-					newMoveCol = Integer.parseInt(inStringArray[1]);
-					
-					// mark the board if a move is valid
-					if (setSelection(newMoveRow, newMoveCol, getPlayerID())) {
-						isLastMoveValid = true;
-					}
-					else {
-						isLastMoveValid = false;
-					}
-				}
-				catch (NumberFormatException e) { 
-					System.out.println("Invalid inputs. Please enter numbers. Try again.");
-					isLastMoveValid = false;
-				}
-				
-			}
-			else if (inStringArray.length == 1 && inStringArray[0].equalsIgnoreCase("Quit")) {
-				System.out.println("You quitted the game. Bye~");
-				System.exit(0);
-			}
-			else {
-				System.out.println("Invalid input. You need to enter two numbers: row and column. Try again.");
-				isLastMoveValid = false;
-			}
-		} // end of in.ready()
-	} // end of getRowCol
 	
 	// save user info including user names, markers, and win/loses
 	public void saveInfo () {
