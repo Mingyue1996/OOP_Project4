@@ -19,3 +19,10 @@
 	-fx-font: bold 40pt "Arial";
 	-fx-fill: white;
 }
+
+.ultimateBoard {
+    -fx-hgap: 10;
+    -fx-vgap: 10;
+    -fx-min-width: 200;
+    -fx-min-height: 200;
+}

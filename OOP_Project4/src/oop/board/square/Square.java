@@ -14,11 +14,12 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import oop.board.BasicGameBoard;
-
+import oop.board.Board;
 import oop.view.*;
 
-public class Square extends BorderPane {
+public class Square extends BorderPane implements Squares {
 	private int squareID;
+	private int boardID;
 	private String marker;
 	private boolean isMarked = false;
 	// create a HBox
@@ -27,13 +28,18 @@ public class Square extends BorderPane {
 	private String computerMarker;
 	private int currentPlayerID;
 
-	public Square (int id, String marker) {
-		squareID = id;
+	public Square (int square_id, int board_id, String marker) {
+		squareID = square_id;
+		boardID = board_id;
 		this.marker = marker;
 		setStyle("-fx-border-color: black");
-		this.setPrefSize(180,180);
-		this.setOnMouseClicked(e->handleMouseClick());
-		
+		if (MainView.getGameVersion() == 2) {
+			this.setPrefSize(70,70);
+		}
+		else if (MainView.getGameVersion() == 1) {
+			this.setPrefSize(150,150);
+		}
+		this.setOnMouseClicked(e->handleMouseClick());	
 	}
 	
 	// return squareID
@@ -43,7 +49,7 @@ public class Square extends BorderPane {
 	
 	
 	//display each marker
-	public String display() {
+	public String getMarker() {
 		return marker;
 	}
 	
@@ -71,7 +77,7 @@ public class Square extends BorderPane {
 	// handle a mouse click event
 	private void handleMouseClick() {
 		MainView.setIsAIMove(false);
-
+	//	System.out.println(this.squareID);
 		if (MainView.ticTacToe.getGameState() == 0) {
 			// get currentPlayerID
 			currentPlayerID = MainView.ticTacToe.getPlayerID();
@@ -83,8 +89,9 @@ public class Square extends BorderPane {
 			}
 			
 			
-			// mark the square if the square is available 
-			if (!this.getIsMarked()) {
+			// mark the square if the square is available and valid
+			//System.out.println("board id:  " + this.boardID + " "+ "Is board valid: " + MainView.ticTacToe.isBoardValid(this.boardID));
+			if (!this.getIsMarked() && MainView.ticTacToe.isBoardValid(this.boardID)) {
 				
 				// stop the timer in MainView
 				if (MainView.getTimeout() > 0) {
@@ -105,6 +112,7 @@ public class Square extends BorderPane {
 				}
 				// game is going on
 				else {
+					updateValidBoard();
 					// change turn
 					// change player if a human makes a move
 					if (!MainView.getIsAIMove()) {
@@ -332,6 +340,23 @@ public class Square extends BorderPane {
 		mediaPlayer.play();
 	} // end of playSound()
 	
+	public void updateValidBoard () {
+		MainView.ticTacToe.clearValidBasicGameBoardID();
+		// check if the next board is valid
+		if (MainView.ticTacToe.getBasicGameBoardList(this.squareID).getIsMarked()) {
+			// if not valid, mark all the available board valid
+			for (int i = 0; i < 9; i++) {
+				if (!MainView.ticTacToe.getBasicGameBoardList(i).getIsMarked()) {
+					MainView.ticTacToe.setValidBasicGameBoardID(i);
+				}
+			}
+			
+		} // end of if
+		else {
+			MainView.ticTacToe.setValidBasicGameBoardID(this.squareID);
+		}
+		
+	} // end of updateValidBoard
 	
 
 } // end of Square class

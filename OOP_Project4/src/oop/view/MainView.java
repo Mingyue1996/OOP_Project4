@@ -41,6 +41,7 @@ public class MainView {
 	public static TTTControllerImpl ticTacToe = new TTTControllerImpl();
 	
 	private int numPlayer;
+	private static int gameVersion;
 	private static int timeout = 0;
 	public static Label turnLabel = new Label();
 	
@@ -121,17 +122,30 @@ public class MainView {
 		selectNumberOfPlayers.setPromptText("Select who you want to play with");
 		selectNumberOfPlayers.setEditable(false);
 		
+		
+		
+		/*************************Ask version of games ********************/
+		// provide game versions for users
+				ObservableList<String> versionOfGamesOption = 
+					    FXCollections.observableArrayList(
+					        "3*3 basic game",
+					        "ultimate game"
+				);
+				
+		// create a comboBox to ask the # of players
+		ComboBox<String> selectVersionOfGames = new ComboBox<>(versionOfGamesOption);
+		selectVersionOfGames.setPromptText("Select which game you want to play");
+		selectVersionOfGames.setEditable(false);
+		
+		
 		// create two buttons: continue and quit
 		Button continueButton = new Button("Continue");
 		Button quitButton = new Button("Quit the game");
 		
-		
+		/****************Add 1st game menu to GUI********************/
 		// add buttons to the pane
-		vBoxForButtons.getChildren().addAll(selectNumberOfPlayers, continueButton, quitButton);	
+		vBoxForButtons.getChildren().addAll(selectNumberOfPlayers, selectVersionOfGames, continueButton, quitButton);	
 		vBoxForButtons.setAlignment(Pos.CENTER);
-		
-		
-		/*************************Ask version of games ********************/
 		
 		pane.getChildren().addAll(vBoxForButtons);
 		
@@ -151,9 +165,21 @@ public class MainView {
 			
 		});
 		
+		
+		// update the game version
+		selectVersionOfGames.valueProperty().addListener((obs, old, n) -> {
+			if (n.equals("3*3 basic game")) {
+				gameVersion = 1;
+			} else if (n.equals("ultimate game")) {			
+				gameVersion = 2;
+			}
+			
+		});
+		
+		
 		// check whether the player can move on to the next game menu
 		continueButton.setOnAction(e -> {
-			if (!selectNumberOfPlayers.getSelectionModel().isEmpty()) {
+			if (!selectNumberOfPlayers.getSelectionModel().isEmpty() && !selectVersionOfGames.getSelectionModel().isEmpty()) {
 				// remove "ask number of players" 
 				vBoxForButtons.getChildren().clear();
 				
@@ -408,7 +434,7 @@ public class MainView {
 				}
 				
 				// create a game
-				ticTacToe.startNewGame(numPlayer, timeout);
+				ticTacToe.startNewGame(numPlayer, timeout, gameVersion);
 				
 				// create players	
 				// one player
@@ -626,6 +652,10 @@ public class MainView {
 	
 	public static void setIsAIMove(boolean isMove) {
 		isAIMove = isMove;
+	}
+	
+	public static int getGameVersion () {
+		return gameVersion;
 	}
 	
 	// display user information
