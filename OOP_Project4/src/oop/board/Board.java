@@ -1,12 +1,9 @@
 package oop.board;
 
-import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.text.Text;
-import oop.board.square.Square;
 
-public class Board extends BorderPane{
+public class Board extends BorderPane {
 	
 	String boardMarker;
 	Pane pane;
@@ -27,7 +24,7 @@ public class Board extends BorderPane{
 		
 	
 	public void reset() {}
-	public boolean hasWon(String marker) {return true;}
+	public boolean hasWon(int newMakeRow, int newMakeCol, String marker) {return true;}
 	public boolean isEmptySpaceAvailable() {return true;}
 	public boolean markBoard(int row, int col, String marker) {return true;}
 } // end of Board

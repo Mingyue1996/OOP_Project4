@@ -2,9 +2,11 @@ package oop.controller;
 import oop.board.BasicGameBoard;
 import oop.board.Board;
 import oop.board.UltimateGameBoard;
+import oop.board.square.Square;
 import oop.player.ComputerPlayer;
 import oop.player.HumanPlayer;
 import oop.player.Player;
+import oop.view.MainView;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -22,10 +24,14 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	private int numberPlayer = 0;
 	private int timeout = 0;
 	private int gameVersion = 0;
-	private Board board;
+	private int numberOfCells = 0;
+	private BasicGameBoard basicBoard;
+	private UltimateGameBoard ultimateBoard;
 	private int playerID = 1;
 	private int newMoveRow = -1;
 	private int newMoveCol = -1;
+	private int currentBasicBoardLocationRow = -1;
+	private int currentBasicBoardLocationCol = -1;
 	private String marker;
 	private int gameState = 0;
 	private boolean isReplay = false;
@@ -34,8 +40,7 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	public ArrayList<Player> player = new ArrayList<>();
 	private HashMap<String, Player> userInfo = new HashMap<String, Player>();
 	private ArrayList<BasicGameBoard> basicGameBoardList = new ArrayList<>();
-	private ArrayList<Integer> validBasicGameBoardID = new ArrayList<>();
-	
+	public HashMap<Integer, Square[][]> validBasicGameBoardMap= new HashMap<>(); 
 	
 	// constructor
 	public TTTControllerImpl () {
@@ -50,11 +55,11 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	 * 						int <=0 means no timeout.  Any int > 0 means to time out
 	 * 						in the given number of seconds.
 	 */
-	public void startNewGame(int numPlayers, int timeoutInSecs, int gameVersion) {
+	public void startNewGame(int numPlayers, int timeoutInSecs, int gameVersion, int numberOfCells) {
 		this.gameVersion = gameVersion;
+		this.numberOfCells = numberOfCells;
+		validBasicGameBoardMap.clear();
 		basicGameBoardList.clear();
-		validBasicGameBoardID.clear();
-		
 		if (numPlayers != 2 && numPlayers != 1) {
 			System.out.println("The number of players is invalid.");
 		}
@@ -64,21 +69,44 @@ public class TTTControllerImpl implements TTTControllerInterface {
 			// create a new board if this is the first time to play
 			if (!isReplay) {
 				if (gameVersion == 1) {					
-					board = new BasicGameBoard(0, "   ");	
-					setBasicGameBoardList((BasicGameBoard) board);
-					setValidBasicGameBoardID(0);
+					basicBoard = new BasicGameBoard(0, numberOfCells, "   ");	
+					setBasicGameBoardList(basicBoard);
 				}else if (gameVersion == 2) {
-					board = new UltimateGameBoard();
+					ultimateBoard = new UltimateGameBoard(numberOfCells);
 				}
 				
 			}
 			// reset the board if play again
 			else if (isReplay) {
-				board.reset();		
+				if (gameVersion == 1) {
+					if (basicBoard != null) {
+						basicBoard.reset();
+						setBasicGameBoardList(basicBoard);
+						validBasicGameBoardMap.put(0, basicBoard.basicTwoD);
+					}else {
+						basicBoard = new BasicGameBoard(0, numberOfCells, "   ");	
+						setBasicGameBoardList(basicBoard);
+					}
+					
+				}
+				else if (gameVersion == 2) {
+					if (ultimateBoard != null) {
+						ultimateBoard.reset();	
+					}else {
+						ultimateBoard = new UltimateGameBoard(numberOfCells);
+					}
+					
+					
+				}
+					
+				//basicGameBoardList.clear();
+				//validBasicGameBoardMap.clear();
 				gameState = 0;
 				playerID = 1;
 				newMoveRow = -1;
 				newMoveCol = -1;
+				currentBasicBoardLocationRow = -1;
+				currentBasicBoardLocationCol = -1;
 				isReplay = true;
 				isHumanPlayer = true;
 				isLastMoveValid = true;
@@ -126,6 +154,8 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	public boolean setSelection(int row, int col, int currentPlayer) {
 		newMoveRow = row;
 		newMoveCol = col;
+		
+	
 		if ((row == 0 || row == 1 || row == 2) && 
 			(col == 0 || col == 1 || col == 2) && 
 			(currentPlayer == 1 || currentPlayer == 2) &&
@@ -154,10 +184,26 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	 * @return
 	 */
 	
-	public int determineWinner() {		
+	public int determineWinner() {	
+		if (gameVersion == 1) {
+			return decideWinner(basicBoard);
+		}else {
+			return decideWinner(ultimateBoard);
+		}
+		
+	}
+	
+	private int decideWinner(Board board) {
 		marker = player.get(playerID-1).getMarker();
 		// check if there is a winner
-		if (board.hasWon(marker)) {
+		
+		if (board.hasWon(newMoveRow, newMoveCol, marker)) {
+			if (MainView.getGameVersion() == 2) {
+				for (int i = 0; i< 9; i++) {
+					UltimateGameBoard.gridPane.getChildren().get(i).getStyleClass().removeIf(style -> style.equals("validBoard"));
+				}
+			}
+			
 			if (playerID == 1) {
 				gameState = 1;
 				return 1;
@@ -167,11 +213,17 @@ public class TTTControllerImpl implements TTTControllerInterface {
 				gameState = 2;
 				return 2;
 			}
+			
 				
 		}
 		
 		// check if the game is in progress
 		else if (board.isEmptySpaceAvailable()) {
+			if (MainView.getGameVersion() == 2) {
+				for (int i = 0; i< 9; i++) {
+					UltimateGameBoard.gridPane.getChildren().get(i).getStyleClass().removeIf(style -> style.equals("validBoard"));
+				}
+			}
 			return 0;
 		}
 		
@@ -181,7 +233,12 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	}
 	
 	public Pane getGameDisplay() {
-		return board.display();
+		if (gameVersion == 1) {
+			return basicBoard.display();
+		}else {
+			return ultimateBoard.display();
+		}
+		
 	}
 	
 	/*
@@ -191,12 +248,29 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	public boolean updatePlayerMove(int row, int col, int playerID) {
 		marker = player.get(playerID-1).getMarker();
 		this.playerID = playerID;
-		if (board.markBoard(row, col, marker)) {
+		// get a valid board number
+		int validBoardNumber = (int) validBasicGameBoardMap.keySet().toArray()[0];
+		
+		// use basic game board list to return the valid game board
+		// System.out.println("valid board number: " + validBoardNumber);
+		if (getBasicGameBoardList(validBoardNumber).markBoard(row, col, marker)) {
+			// REMOVE style of previous moves
+			
+			// ADD style to the square to show the latest move
+			
+			
+			
 			player.get(playerID-1).makeMove(row, col);
 			// check win
 			// change turn if the game is in progress
 			newMoveRow = row;
 			newMoveCol = col;
+			
+			// call transformIntoSquareID
+			int currentBoardID = (int) validBasicGameBoardMap.keySet().toArray()[0];
+			//System.out.println("current Board ID: " + currentBoardID);
+			transformIntoSquareID(newMoveRow, newMoveCol, -1, currentBoardID, true);
+			
 			if (determineWinner() == 0) {			
 				// if no win/tie, change turn
 				setCurrentPlayer(playerID);
@@ -268,22 +342,71 @@ public class TTTControllerImpl implements TTTControllerInterface {
 		return basicGameBoardList.get(index);
 	}
 	
-	// update validBasicGameBoardID
-	public void setValidBasicGameBoardID (int boardID) {
-		validBasicGameBoardID.add(boardID);
+	
+	public void updateValidBoard (int squareID) {
+		validBasicGameBoardMap.clear();
+		for (int i = 0; i< 9; i++) {
+			UltimateGameBoard.gridPane.getChildren().get(i).getStyleClass().removeIf(style -> style.equals("validBoard"));
+		}
+		
+		// check if the next board is valid
+		if (getBasicGameBoardList(squareID).getIsMarked()) {
+		
+			// if not valid, mark all the available board valid
+			for (int i = 0; i < 9; i++) {
+				if (!getBasicGameBoardList(i).getIsMarked()) {
+					validBasicGameBoardMap.put(i, MainView.ticTacToe.getBasicGameBoardList(i).basicTwoD);
+					UltimateGameBoard.gridPane.getChildren().get(i).getStyleClass().add("validBoard");
+				}
+			}
+			
+		} // end of if
+		else {
+			validBasicGameBoardMap.put(squareID, MainView.ticTacToe.getBasicGameBoardList(squareID).basicTwoD);
+			UltimateGameBoard.gridPane.getChildren().get(squareID).getStyleClass().add("validBoard");
+			//System.out.println("Square check " + MainView.ticTacToe.validBasicGameBoardMap.get(squareID)[0][0].getBoardID());
+			//System.out.println("this.squareID: " + this.squareID);
+		}
+	} // end of updateValidBoard
+	
+	// row, column transforms into squareID
+	public int transformIntoSquareID (int rowNum, int colNum, int square_id, int board_id, boolean squareIDToRowCol) {
+		int squareID = 0, boardID = 0;
+		int [][] squareIDArray = new int [numberOfCells][numberOfCells];
+		for (int i = 0; i < squareIDArray.length; i++) {
+			for (int j = 0; j < squareIDArray.length; j++, squareID++, boardID++) {
+				squareIDArray[i][j] = squareID;
+				if (squareIDToRowCol && square_id == squareID) {
+					newMoveRow = i;
+					newMoveCol = j;
+				}
+				
+				if (squareIDToRowCol && board_id == boardID) {
+					currentBasicBoardLocationRow = i;
+					currentBasicBoardLocationCol = j;
+				}
+			} // end of inner for
+		}
+		
+		return squareIDArray[rowNum][colNum];
 	}
 	
-	// get validBasicGameBoardID
-	public int getValidBasicGameBoardID (int index) {
-		return validBasicGameBoardID.get(index);
+	
+	// return new row, new column
+	public int getNewMoveRow() {
+		return newMoveRow;
 	}
 	
-	public boolean isBoardValid (int boardID) {
-		return validBasicGameBoardID.contains(boardID);
+	public int getNewMoveCol() {
+		return newMoveCol;
 	}
 	
-	public void clearValidBasicGameBoardID() {
-		validBasicGameBoardID.clear();
+	public int getCurrentBasicBoardLocationRow() {
+		return currentBasicBoardLocationRow;
+	}
+	
+	public int getCurrentBasicBoardLocationCol() {
+		return currentBasicBoardLocationCol;
 	}
 	
 	// save user info including user names, markers, and win/loses
@@ -341,6 +464,11 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	
 	public HashMap<String, Player> getHashMap () {
 		return userInfo;
+	}
+
+	public int getNumberOfCells() {
+		// TODO Auto-generated method stub
+		return numberOfCells;
 	}
 	
 }

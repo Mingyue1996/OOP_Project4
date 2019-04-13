@@ -26,3 +26,20 @@
     -fx-min-width: 200;
     -fx-min-height: 200;
 }
+
+.basicBoard_player1 {
+	-fx-background-color: pink;
+}
+
+.basicBoard_player2 {
+	-fx-background-color: blueviolet;
+}
+
+.validBoard {
+	 
+	 -fx-background-color: rgb(232, 125, 116, 0.2); 
+}
+
+.tie {
+	-fx-background-color: darkgrey;
+}

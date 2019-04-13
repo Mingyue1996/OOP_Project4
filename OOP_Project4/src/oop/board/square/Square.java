@@ -53,6 +53,11 @@ public class Square extends BorderPane implements Squares {
 		return marker;
 	}
 	
+	// return boardID
+	public int getBoardID() {
+		return boardID;
+	}
+	
 	// update marker
 	public void setMarker(String marker, boolean isReset) {
 		this.marker = marker;
@@ -90,8 +95,8 @@ public class Square extends BorderPane implements Squares {
 			
 			
 			// mark the square if the square is available and valid
-			//System.out.println("board id:  " + this.boardID + " "+ "Is board valid: " + MainView.ticTacToe.isBoardValid(this.boardID));
-			if (!this.getIsMarked() && MainView.ticTacToe.isBoardValid(this.boardID)) {
+			//System.out.println("board id:  " + this.boardID + " "+ "Is board valid: " +MainView.ticTacToe.validBasicGameBoardMap.containsKey(this.boardID));
+			if (!this.getIsMarked() && MainView.ticTacToe.validBasicGameBoardMap.containsKey(this.boardID)) {
 				
 				// stop the timer in MainView
 				if (MainView.getTimeout() > 0) {
@@ -99,6 +104,14 @@ public class Square extends BorderPane implements Squares {
 				}		
 				
 				setMarker(currentMarker, false);
+				
+				// REMOVE style of previous moves
+				
+				// ADD style to the square to show the latest move
+				
+				
+				//System.out.println(" square board ID: " + this.boardID);
+				MainView.ticTacToe.transformIntoSquareID(0,0, this.squareID, this.boardID, true);
 				int gameState = MainView.ticTacToe.determineWinner();
 
 				// check game status
@@ -112,7 +125,10 @@ public class Square extends BorderPane implements Squares {
 				}
 				// game is going on
 				else {
-					updateValidBoard();
+					if (MainView.getGameVersion() == 2) {
+						MainView.ticTacToe.updateValidBoard(this.squareID);
+					}
+						
 					// change turn
 					// change player if a human makes a move
 					if (!MainView.getIsAIMove()) {
@@ -215,7 +231,12 @@ public class Square extends BorderPane implements Squares {
 									}
 								
 								}));
-								MainView.timerSquare.setCycleCount(9);
+								if (MainView.getGameVersion () != 2) {
+									MainView.timerSquare.setCycleCount(MainView.ticTacToe.getNumberOfCells() * MainView.ticTacToe.getNumberOfCells());
+								}else {
+									MainView.timerSquare.setCycleCount(MainView.ticTacToe.getNumberOfCells() * MainView.ticTacToe.getNumberOfCells()
+											* MainView.ticTacToe.getNumberOfCells() * MainView.ticTacToe.getNumberOfCells());
+								}
 								MainView.timerSquare.play();
 							
 								
@@ -240,12 +261,14 @@ public class Square extends BorderPane implements Squares {
 		
 		int computerRow = rand.nextInt(3); 
 		int computerCol = rand.nextInt(3);
+		//System.out.println("computer is making a move");
 		while (!MainView.ticTacToe.updatePlayerMove(computerRow, computerCol, 2)) {
 			computerRow = rand.nextInt(3); 
 			computerCol = rand.nextInt(3);
 		}
 			MainView.setIsAIMove(true);
-			BasicGameBoard.basicTwoD[computerRow][computerCol].setMarker(computerMarker, false);
+			//System.out.println(MainView.ticTacToe.validBasicGameBoardMap.get(MainView.ticTacToe.validBasicGameBoardMap.keySet().toArray()));
+			//MainView.ticTacToe.validBasicGameBoardMap.get(MainView.ticTacToe.validBasicGameBoardMap.keySet().toArray()[0])[computerRow][computerCol].setMarker(computerMarker, false);
 
 		currentPlayerID = MainView.ticTacToe.getPlayerID();
 		// get game state
@@ -264,6 +287,12 @@ public class Square extends BorderPane implements Squares {
 
 		else {
 			MainView.turnLabel.setText(MainView.ticTacToe.player.get(currentPlayerID-1).getUsername() + "'s turn to play.");
+			
+			// update valid game boards
+			if (MainView.getGameVersion () == 2) {
+				MainView.ticTacToe.updateValidBoard(MainView.ticTacToe.transformIntoSquareID(computerRow, computerCol, -1, -1, false));
+			}
+			
 		}
 	}
 	
@@ -340,23 +369,4 @@ public class Square extends BorderPane implements Squares {
 		mediaPlayer.play();
 	} // end of playSound()
 	
-	public void updateValidBoard () {
-		MainView.ticTacToe.clearValidBasicGameBoardID();
-		// check if the next board is valid
-		if (MainView.ticTacToe.getBasicGameBoardList(this.squareID).getIsMarked()) {
-			// if not valid, mark all the available board valid
-			for (int i = 0; i < 9; i++) {
-				if (!MainView.ticTacToe.getBasicGameBoardList(i).getIsMarked()) {
-					MainView.ticTacToe.setValidBasicGameBoardID(i);
-				}
-			}
-			
-		} // end of if
-		else {
-			MainView.ticTacToe.setValidBasicGameBoardID(this.squareID);
-		}
-		
-	} // end of updateValidBoard
-	
-
 } // end of Square class

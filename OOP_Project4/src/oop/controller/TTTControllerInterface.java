@@ -11,6 +11,7 @@
 package oop.controller;
 
 import javafx.scene.layout.Pane;
+import oop.board.Board;
 
 public interface TTTControllerInterface {
 	
@@ -22,7 +23,7 @@ public interface TTTControllerInterface {
 	 * 						int <=0 means no timeout.  Any int > 0 means to time out
 	 * 						in the given number of seconds.
 	 */
-	void startNewGame(int numPlayers, int timeoutInSecs, int gameVersion);
+	void startNewGame(int numPlayers, int timeoutInSecs, int gameVersion, int numberOfCells);
 
 
 	/**

@@ -42,6 +42,7 @@ public class MainView {
 	
 	private int numPlayer;
 	private static int gameVersion;
+	private int numberOfCells;
 	private static int timeout = 0;
 	public static Label turnLabel = new Label();
 	
@@ -129,7 +130,9 @@ public class MainView {
 				ObservableList<String> versionOfGamesOption = 
 					    FXCollections.observableArrayList(
 					        "3*3 basic game",
-					        "ultimate game"
+					        "ultimate game",
+					        "4*4 basic game",
+					        "5*5 basic game"
 				);
 				
 		// create a comboBox to ask the # of players
@@ -170,9 +173,14 @@ public class MainView {
 		selectVersionOfGames.valueProperty().addListener((obs, old, n) -> {
 			if (n.equals("3*3 basic game")) {
 				gameVersion = 1;
+				numberOfCells = 3;
 			} else if (n.equals("ultimate game")) {			
 				gameVersion = 2;
-			}
+				numberOfCells = 3;
+			} else if (n.equals("4*4 basic game")) {
+			gameVersion = 3;
+			numberOfCells = 4;
+		}
 			
 		});
 		
@@ -434,7 +442,7 @@ public class MainView {
 				}
 				
 				// create a game
-				ticTacToe.startNewGame(numPlayer, timeout, gameVersion);
+				ticTacToe.startNewGame(numPlayer, timeout, gameVersion, numberOfCells);
 				
 				// create players	
 				// one player
@@ -556,7 +564,7 @@ public class MainView {
 						timer.stop();
 						
 						// show the human lost the game
-						System.out.println("HUman lost");
+						System.out.println("Human lost");
 						Square.playSound("src/loseSound.mp3");
 						
 						turnLabel.setText(username.get(0) + " lost the game.");
@@ -584,8 +592,12 @@ public class MainView {
 				}
 			
 			}));
+			if (gameVersion != 2) {
+				timer.setCycleCount(numberOfCells * numberOfCells);
+			}else {
+				timer.setCycleCount(numberOfCells * numberOfCells * numberOfCells * numberOfCells);
+			}
 			
-			timer.setCycleCount(9);
 			timer.play();
 		} // end of timeout
 		
@@ -638,8 +650,15 @@ public class MainView {
 			computerRow = rand.nextInt(3); 
 			computerCol = rand.nextInt(3);
 		}
-
-		BasicGameBoard.basicTwoD[computerRow][computerCol].setMarker(marker.get(1), false);
+		
+		// when the game is over
+		if (ticTacToe.getGameState() == 0) {
+			// update valid game boards
+			if (gameVersion == 2) {
+				ticTacToe.updateValidBoard(ticTacToe.transformIntoSquareID(computerRow, computerCol, -1, -1, false));
+			}
+			
+		}
 	}
 	
 	public static int getTimeout() {
@@ -656,6 +675,10 @@ public class MainView {
 	
 	public static int getGameVersion () {
 		return gameVersion;
+	}
+	
+	public int getNumberOfCells() {
+		return numberOfCells;
 	}
 	
 	// display user information
