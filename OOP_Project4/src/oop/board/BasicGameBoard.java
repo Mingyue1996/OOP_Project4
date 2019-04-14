@@ -42,7 +42,8 @@ public class BasicGameBoard extends Board implements Squares {
         gridPane.setAlignment(Pos.CENTER);
        // gridPane.getStyleClass().add("basicBoard");
 	} // end of constructor 
-
+	
+	
 	// return basicTwoD
 	public  Square[][] getBasicTwoD() {
 		return this.basicTwoD;

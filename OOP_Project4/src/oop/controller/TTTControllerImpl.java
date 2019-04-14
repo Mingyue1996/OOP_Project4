@@ -41,6 +41,7 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	private HashMap<String, Player> userInfo = new HashMap<String, Player>();
 	private ArrayList<BasicGameBoard> basicGameBoardList = new ArrayList<>();
 	public HashMap<Integer, Square[][]> validBasicGameBoardMap= new HashMap<>(); 
+	private HashMap<Integer, BasicGameBoard> basicGameBoardMap = new HashMap<>();
 	
 	// constructor
 	public TTTControllerImpl () {
@@ -68,28 +69,31 @@ public class TTTControllerImpl implements TTTControllerInterface {
 			timeout = timeoutInSecs;
 			// create a new board if this is the first time to play
 			if (!isReplay) {
-				if (gameVersion == 1) {					
+				if (gameVersion != 2) {					
 					basicBoard = new BasicGameBoard(0, numberOfCells, "   ");	
 					setBasicGameBoardList(basicBoard);
-				}else if (gameVersion == 2) {
+					basicGameBoardMap.put(gameVersion, basicBoard);
+				}else {
 					ultimateBoard = new UltimateGameBoard(numberOfCells);
 				}
 				
 			}
 			// reset the board if play again
 			else if (isReplay) {
-				if (gameVersion == 1) {
-					if (basicBoard != null) {
+				if (gameVersion != 2) {
+					if (basicGameBoardMap.containsKey(gameVersion)) {
+						basicBoard = basicGameBoardMap.get(gameVersion);
 						basicBoard.reset();
 						setBasicGameBoardList(basicBoard);
 						validBasicGameBoardMap.put(0, basicBoard.basicTwoD);
 					}else {
 						basicBoard = new BasicGameBoard(0, numberOfCells, "   ");	
 						setBasicGameBoardList(basicBoard);
+						basicGameBoardMap.put(gameVersion, basicBoard);
 					}
 					
 				}
-				else if (gameVersion == 2) {
+				else {
 					if (ultimateBoard != null) {
 						ultimateBoard.reset();	
 					}else {
@@ -185,7 +189,7 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	 */
 	
 	public int determineWinner() {	
-		if (gameVersion == 1) {
+		if (gameVersion != 2) {
 			return decideWinner(basicBoard);
 		}else {
 			return decideWinner(ultimateBoard);
@@ -233,7 +237,7 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	}
 	
 	public Pane getGameDisplay() {
-		if (gameVersion == 1) {
+		if (gameVersion != 2) {
 			return basicBoard.display();
 		}else {
 			return ultimateBoard.display();

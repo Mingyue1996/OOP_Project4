@@ -132,7 +132,8 @@ public class MainView {
 					        "3*3 basic game",
 					        "ultimate game",
 					        "4*4 basic game",
-					        "5*5 basic game"
+					        "5*5 basic game",
+					        "6*6 basic game"
 				);
 				
 		// create a comboBox to ask the # of players
@@ -178,9 +179,15 @@ public class MainView {
 				gameVersion = 2;
 				numberOfCells = 3;
 			} else if (n.equals("4*4 basic game")) {
-			gameVersion = 3;
-			numberOfCells = 4;
-		}
+				gameVersion = 3;
+				numberOfCells = 4;
+			}else if (n.equals("5*5 basic game")) {
+				gameVersion = 4;
+				numberOfCells = 5;
+			}else if (n.equals("6*6 basic game")) {
+				gameVersion = 6;
+				numberOfCells = 6;
+			}
 			
 		});
 		
@@ -644,11 +651,11 @@ public class MainView {
 	// computer makes a random move
 	public void AIMove() {
 		Random rand = new Random(); 
-		int computerRow = rand.nextInt(3); 
-		int computerCol = rand.nextInt(3);
+		int computerRow = rand.nextInt(numberOfCells); 
+		int computerCol = rand.nextInt(numberOfCells);
 		while (!MainView.ticTacToe.updatePlayerMove(computerRow, computerCol, 2)) {
-			computerRow = rand.nextInt(3); 
-			computerCol = rand.nextInt(3);
+			computerRow = rand.nextInt(numberOfCells); 
+			computerCol = rand.nextInt(numberOfCells);
 		}
 		
 		// when the game is over

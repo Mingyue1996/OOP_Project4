@@ -36,8 +36,8 @@ public class Square extends BorderPane implements Squares {
 		if (MainView.getGameVersion() == 2) {
 			this.setPrefSize(70,70);
 		}
-		else if (MainView.getGameVersion() == 1) {
-			this.setPrefSize(150,150);
+		else  {
+			this.setPrefSize(100,100);
 		}
 		this.setOnMouseClicked(e->handleMouseClick());	
 	}
@@ -259,12 +259,12 @@ public class Square extends BorderPane implements Squares {
 		// generate row & column, call updatePlayerMove
 		Random rand = new Random(); 
 		
-		int computerRow = rand.nextInt(3); 
-		int computerCol = rand.nextInt(3);
+		int computerRow = rand.nextInt(MainView.ticTacToe.getNumberOfCells()); 
+		int computerCol = rand.nextInt(MainView.ticTacToe.getNumberOfCells());
 		//System.out.println("computer is making a move");
 		while (!MainView.ticTacToe.updatePlayerMove(computerRow, computerCol, 2)) {
-			computerRow = rand.nextInt(3); 
-			computerCol = rand.nextInt(3);
+			computerRow = rand.nextInt(MainView.ticTacToe.getNumberOfCells()); 
+			computerCol = rand.nextInt(MainView.ticTacToe.getNumberOfCells());
 		}
 			MainView.setIsAIMove(true);
 			//System.out.println(MainView.ticTacToe.validBasicGameBoardMap.get(MainView.ticTacToe.validBasicGameBoardMap.keySet().toArray()));
