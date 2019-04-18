@@ -133,6 +133,7 @@ public class MainView {
 					        "ultimate game",
 					        "4*4 basic game",
 					        "5*5 basic game",
+					        "Territory Tic-Tac-Toe",
 					        "6*6 basic game"
 				);
 				
@@ -183,6 +184,9 @@ public class MainView {
 				numberOfCells = 4;
 			}else if (n.equals("5*5 basic game")) {
 				gameVersion = 4;
+				numberOfCells = 5;
+			}else if (n.equals("Territory Tic-Tac-Toe")) {
+				gameVersion = 5;
 				numberOfCells = 5;
 			}else if (n.equals("6*6 basic game")) {
 				gameVersion = 6;

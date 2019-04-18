@@ -97,12 +97,22 @@ public class BasicGameBoard extends Board implements Squares {
 			
 			
 		public void reset() {
+			if (MainView.getGameVersion() != 2) {
+				gridPane.getChildren().clear();
+			}
+			
+			//System.out.println("basic gmae board id: " + boardID + " number of cells: " + numberOfCells);
 			//MainView.ticTacToe.validBasicGameBoardMap.put(0, this.basicTwoD);
 			for (int i = 0; i < numberOfCells; i ++) {
 				for (int j = 0; j < numberOfCells; j++) {
 					this.basicTwoD[i][j].setMarker("   ", true);
+					if (MainView.getGameVersion() != 2) {
+						gridPane.add(basicTwoD[i][j], j, i);
+					}
 				}
 			}
+			
+			
 				
 		} // end of reset
 			

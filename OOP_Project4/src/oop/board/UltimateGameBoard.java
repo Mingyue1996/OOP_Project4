@@ -121,6 +121,7 @@ public class UltimateGameBoard extends Board {
 			for (int i = 0; i < 9; i++) {
 				MainView.ticTacToe.validBasicGameBoardMap.put(i, MainView.ticTacToe.getBasicGameBoardList(i).basicTwoD);
 				gridPane.getChildren().get(i).getStyleClass().clear();
+				gridPane.getChildren().get(i).getStyleClass().add("validBoard");
 			}
 		} // end of reset
 			
