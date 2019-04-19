@@ -57,6 +57,7 @@ public class MainView {
 	
     private final int windowWidth = 1200; 
     private final int windowHeight = 900;
+    VBox VBoxRootLeft = new VBox(10);
     private Text emptyInputsText = new Text ("Fill in user name and marker. Computer cannot be username.");	
     private Text timeStringErrorText = new Text ("Time out must be an integer");
     private Text duplicateInputsText = new Text ("Two players cannot use the same username or marker.");
@@ -109,6 +110,39 @@ public class MainView {
 		
 		// create a pane for the game menu
 		VBox vBoxForButtons = new VBox(20);
+		
+		
+		// add a button to check previous game results
+		if (!VBoxRootLeft.getChildren().contains(checkOldUser)) {
+			VBoxRootLeft.getChildren().add(checkOldUser);
+		}
+		
+		if (VBoxRootLeft.getChildren().contains(lvUsername) ) {
+			checkOldUser.setText("Check previous game results");
+			VBoxRootLeft.getChildren().remove(lvUsername);
+		}
+		
+		root.setLeft(VBoxRootLeft);
+		displayInfo();
+		
+		lvUsername = new ListView<> (FXCollections.observableArrayList(userInfoArrayList)); // userInfoArrayList
+		
+		// show/hide previous game results
+		checkOldUser.setOnAction (e -> {
+			if (checkOldUser.getText().contains("Check")) {
+				VBoxRootLeft.getChildren().add(lvUsername);
+				
+				checkOldUser.setText("Hide previous game results");
+			}
+			else {
+				if (VBoxRootLeft.getChildren().contains(lvUsername)) {
+					VBoxRootLeft.getChildren().remove(lvUsername);
+				}
+				checkOldUser.setText("Check previous game results");
+			}
+			
+		});
+		
 		
 		/*********************Ask # of players **********************/
 		// provide options for users
@@ -221,16 +255,21 @@ public class MainView {
 	// get timeout, user names, and markers
 	public void getPlayerInfo(VBox vBoxForButtons) {
 
-		VBox VBoxRootLeft = new VBox(10);
+		
 		// add a button to check previous game results
 		if (!VBoxRootLeft.getChildren().contains(checkOldUser)) {
 			VBoxRootLeft.getChildren().add(checkOldUser);
 		}
 		
+		if (VBoxRootLeft.getChildren().contains(lvUsername) ) {
+			checkOldUser.setText("Check previous game results");
+			VBoxRootLeft.getChildren().remove(lvUsername);
+		}
+		
 		root.setLeft(VBoxRootLeft);
-		displayInfo();
+		//displayInfo();
 		// a list for previous game results
-		lvUsername = new ListView<> (FXCollections.observableArrayList(userInfoArrayList)); // userInfoArrayList
+		//lvUsername = new ListView<> (FXCollections.observableArrayList(userInfoArrayList)); // userInfoArrayList
 		
 		// show/hide previous game results
 		checkOldUser.setOnAction (e -> {

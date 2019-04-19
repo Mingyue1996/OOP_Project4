@@ -37,7 +37,7 @@
 
 .validBoard {
 	 
-	 -fx-background-color: rgb(232, 125, 116, 0.2); 
+	 -fx-background-color: white; 
 }
 
 .tie {
