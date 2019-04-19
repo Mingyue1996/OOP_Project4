@@ -338,7 +338,7 @@ public class MainView {
 			
 		}
 			
-	
+
 
 		/********************Enter your marker1************************/
 		ObservableList<String> markerOption = FXCollections.observableArrayList(imageOption);

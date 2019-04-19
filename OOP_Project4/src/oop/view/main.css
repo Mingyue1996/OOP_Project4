@@ -43,3 +43,11 @@
 .tie {
 	-fx-background-color: darkgrey;
 }
+
+.unpickable {
+	-fx-background-color: rgb(244, 66, 66);
+}
+
+.neutral {
+	-fx-background-color: rgb(27, 132, 29);
+}

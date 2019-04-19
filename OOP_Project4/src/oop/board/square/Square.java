@@ -27,7 +27,8 @@ public class Square extends BorderPane implements Squares {
 	
 	private String computerMarker;
 	private int currentPlayerID;
-
+	private boolean isUnpickable;
+	private boolean isNeutral;
 	public Square (int square_id, int board_id, String marker) {
 		squareID = square_id;
 		boardID = board_id;
@@ -69,6 +70,8 @@ public class Square extends BorderPane implements Squares {
 		else {
 			isMarked = false;
 			this.setCenter(new Text(marker));
+			isUnpickable = false;
+			isNeutral = false;
 		} // end of isReset	
 		
 	}
@@ -254,6 +257,22 @@ public class Square extends BorderPane implements Squares {
 			
 		} // end of gameState == 0
 	} // end of handleMouseClick
+	
+	public void setIsUnpickable (boolean isUnpickable) {
+		this.isUnpickable = isUnpickable;
+	}
+	
+	public void setIsNeutral (boolean isNeutral) {
+		this.isNeutral = isNeutral;
+	}
+	
+	public boolean getIsUnpickable () {
+		return isUnpickable;
+	}
+	
+	public boolean getIsNeutral () {
+		return isNeutral;
+	}
 	
 	private void AI_Move_CheckWin() {
 		// generate row & column, call updatePlayerMove

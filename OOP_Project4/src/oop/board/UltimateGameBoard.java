@@ -34,7 +34,7 @@ public class UltimateGameBoard extends Board {
 				}
 			}
 		}
-		
+		//System.out.println("size: " + gridPane.getChildren().size());
 		//Setting the Grid alignment 
 		gridPane.setAlignment(Pos.CENTER); 
 	} // end of constructor
@@ -117,12 +117,14 @@ public class UltimateGameBoard extends Board {
 					MainView.ticTacToe.setBasicGameBoardList(ultimateTwoD[i][j]);
 				}
 			}
+			System.out.println("size in reset: " + gridPane.getChildren().size());
 			// update valid basic game board AND remove all the color styles applied to the basic boards
 			for (int i = 0; i < 9; i++) {
 				MainView.ticTacToe.validBasicGameBoardMap.put(i, MainView.ticTacToe.getBasicGameBoardList(i).basicTwoD);
 				gridPane.getChildren().get(i).getStyleClass().clear();
 				gridPane.getChildren().get(i).getStyleClass().add("validBoard");
 			}
+			
 		} // end of reset
 			
 		// check if there is at least an empty space in the board

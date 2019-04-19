@@ -1,5 +1,7 @@
 package oop.board;
 
+import java.util.Random;
+
 import javafx.geometry.Pos;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -11,27 +13,46 @@ import oop.view.MainView;
 public class BasicGameBoard extends Board implements Squares {
 	 
 	// create a pane to hold squares
-	public static GridPane gridPane;
+	private GridPane gridPaneBasic;
 	public Square[][] basicTwoD;
 	//private String marker1, marker2;
 	private int boardID;
 	private String boardMarker;
 	private boolean isMarked = false;
 	private int numberOfCells;
+	int[] territorySpots = new int[4];
 	//private int boardFormat = 0;
 	// constructor
 	public BasicGameBoard(int id, int numberOfCells, String boardMarker) {
 		boardID = id;
 		this.numberOfCells = numberOfCells;
 		this.boardMarker = boardMarker;
-		gridPane = new GridPane();
+		gridPaneBasic = new GridPane();
 		basicTwoD = new Square[numberOfCells][numberOfCells];
-		int squareID = 0;		
+		int squareID = 0;
+		
+		
+		// generate four random spots (neutral spots and unpickable spots) if gameVersion is 5
+		if (MainView.getGameVersion() == 5) {
+			territorySpots = new Random().ints(0, 25).distinct().limit(4).toArray();
+			//System.out.println(territorySpots[0] + " " + territorySpots[1] + " " + territorySpots[2] + " " + territorySpots[3] + " ");
+		}
+		
+		
 		// initialize basicTwoD
 		for (int i = 0; i < numberOfCells; i ++) {
 			//System.out.println("create ultimate game board");
 			for (int j = 0; j < numberOfCells; j++, squareID++) {
-				gridPane.add(basicTwoD[i][j] = new Square(squareID, boardID, "   "),j,i);
+				gridPaneBasic.add(basicTwoD[i][j] = new Square(squareID, boardID, "   "),j,i);
+				if (MainView.getGameVersion() == 5 && (squareID == territorySpots[0] || squareID == territorySpots[1])) {
+					basicTwoD[i][j].setIsUnpickable(true);
+					basicTwoD[i][j].setMarker("✖ ", false);
+					basicTwoD[i][j].getStyleClass().add("unpickable");
+				}else if (MainView.getGameVersion() == 5 && (squareID == territorySpots[2] || squareID == territorySpots[3])) {
+					basicTwoD[i][j].setIsNeutral(true);
+					basicTwoD[i][j].setMarker("✔ ", false);
+					basicTwoD[i][j].getStyleClass().add("neutral");
+				}
 
 			}
 		}
@@ -39,8 +60,8 @@ public class BasicGameBoard extends Board implements Squares {
 		MainView.ticTacToe.validBasicGameBoardMap.put(boardID, basicTwoD);
 		//System.out.println("create board id: " + boardID);
 		//Setting the Grid alignment 
-        gridPane.setAlignment(Pos.CENTER);
-       // gridPane.getStyleClass().add("basicBoard");
+        gridPaneBasic.setAlignment(Pos.CENTER);
+       // gridPaneBasic.getStyleClass().add("basicBoard");
 	} // end of constructor 
 	
 	
@@ -54,7 +75,7 @@ public class BasicGameBoard extends Board implements Squares {
 		boolean hasWon = true;
 		// check row
         for(int i=0; i< numberOfCells; i++){
-            if(!(basicTwoD[row][i].getMarker()).equals(marker)){
+            if(!(basicTwoD[row][i].getMarker()).equals(marker) && !(basicTwoD[row][i].getIsNeutral())){
             	hasWon = false;
             }
         }
@@ -66,7 +87,7 @@ public class BasicGameBoard extends Board implements Squares {
         hasWon = true;
     	// check column
         for(int i=0; i<numberOfCells; i++){
-            if(!(basicTwoD[i][col].getMarker()).equals(marker)){
+            if(!(basicTwoD[i][col].getMarker()).equals(marker) && !(basicTwoD[i][col].getIsNeutral())){
             	hasWon = false;
             }
         }
@@ -76,7 +97,7 @@ public class BasicGameBoard extends Board implements Squares {
 	    hasWon = true;
         // check back diagonal
         for(int i=0; i<numberOfCells; i++){
-        	if(!(basicTwoD[i][i].getMarker()).equals(marker)){		        		
+        	if(!(basicTwoD[i][i].getMarker()).equals(marker) && !(basicTwoD[i][i].getIsNeutral())){		        		
         		hasWon = false;
         	}
         }
@@ -86,7 +107,7 @@ public class BasicGameBoard extends Board implements Squares {
         hasWon = true;
         // check forward diagonal
         for(int i=0, j=numberOfCells-1; i<numberOfCells; i++, j--){
-        	if(!(basicTwoD[i][j].getMarker()).equals(marker)){
+        	if(!(basicTwoD[i][j].getMarker()).equals(marker) && !(basicTwoD[i][j].getIsNeutral())){
         		hasWon = false;	
         	}
         }
@@ -98,7 +119,12 @@ public class BasicGameBoard extends Board implements Squares {
 			
 		public void reset() {
 			if (MainView.getGameVersion() != 2) {
-				gridPane.getChildren().clear();
+				gridPaneBasic.getChildren().clear();
+			}
+			// generate four random spots (neutral spots and unpickable spots) if gameVersion is 5
+			if (MainView.getGameVersion() == 5) {
+				territorySpots = new Random().ints(0, 25).distinct().limit(4).toArray();
+				//System.out.println(territorySpots[0] + " " + territorySpots[1] + " " + territorySpots[2] + " " + territorySpots[3] + " ");
 			}
 			
 			//System.out.println("basic gmae board id: " + boardID + " number of cells: " + numberOfCells);
@@ -106,9 +132,25 @@ public class BasicGameBoard extends Board implements Squares {
 			for (int i = 0; i < numberOfCells; i ++) {
 				for (int j = 0; j < numberOfCells; j++) {
 					this.basicTwoD[i][j].setMarker("   ", true);
+					this.basicTwoD[i][j].getStyleClass().removeIf(style -> style.equals("unpickable"));
+					this.basicTwoD[i][j].getStyleClass().removeIf(style -> style.equals("neutral"));
 					if (MainView.getGameVersion() != 2) {
-						gridPane.add(basicTwoD[i][j], j, i);
+						gridPaneBasic.add(basicTwoD[i][j], j, i);
 					}
+					
+					if (MainView.getGameVersion() == 5 && (this.basicTwoD[i][j].getSquareID() == territorySpots[0] || this.basicTwoD[i][j].getSquareID() == territorySpots[1])) {
+						basicTwoD[i][j].setIsUnpickable(true);
+						basicTwoD[i][j].setMarker("✖ ", false);
+						basicTwoD[i][j].getStyleClass().add("unpickable");
+					}else if (MainView.getGameVersion() == 5 && (this.basicTwoD[i][j].getSquareID() == territorySpots[2] || this.basicTwoD[i][j].getSquareID() == territorySpots[3])) {
+						basicTwoD[i][j].setIsNeutral(true);
+						basicTwoD[i][j].setMarker("✔ ", false);
+						basicTwoD[i][j].getStyleClass().add("neutral");
+					}else {
+						basicTwoD[i][j].setIsNeutral(false);
+						basicTwoD[i][j].setIsUnpickable(false);
+					}
+					
 				}
 			}
 			
@@ -141,7 +183,7 @@ public class BasicGameBoard extends Board implements Squares {
 	
 	// return the basic board
 	public Pane display() {
-		return gridPane;
+		return gridPaneBasic;
 	}
 	
 	// return the marker for the basic board
