@@ -51,3 +51,7 @@
 .neutral {
 	-fx-background-color: rgb(27, 132, 29);
 }
+
+.uniqueTileCheckBox {
+	-fx-padding:0 0 20 0;
+}

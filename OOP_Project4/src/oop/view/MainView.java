@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import oop.board.BasicGameBoard;
 import oop.board.square.Square;
 import oop.controller.*;
 import oop.player.Player;
@@ -19,6 +18,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -63,7 +63,7 @@ public class MainView {
     private Text duplicateInputsText = new Text ("Two players cannot use the same username or marker.");
     private Text emptySelectionFirstScene = new Text ("Please select all the fields below.");
     
-    
+    private boolean hasUniqueTile;
     private String username1, username2, marker1, marker2;
     public static Timeline timerSquare;
     public static Button quitBtn;
@@ -74,6 +74,7 @@ public class MainView {
     private Button checkOldUser = new Button("Check previous game results");
     
     private ListView<String> lvUsername;
+    
     
     //public static Timeline timerSquare;
     
@@ -176,6 +177,9 @@ public class MainView {
 		selectVersionOfGames.setPromptText("Select which game you want to play");
 		selectVersionOfGames.setEditable(false);
 		
+		// add a check box to ask whether the user wants to contain a unique tile
+		CheckBox uniqueTileCheckBox = new CheckBox ("Contain a trap tile");
+		uniqueTileCheckBox.getStyleClass().add("uniqueTileCheckBox");
 		
 		// create two buttons: continue and quit
 		Button continueButton = new Button("Continue");
@@ -210,21 +214,27 @@ public class MainView {
 			if (n.equals("3*3 basic game")) {
 				gameVersion = 1;
 				numberOfCells = 3;
+				updateCheckBoxForTrapTile(true, vBoxForButtons, uniqueTileCheckBox, selectVersionOfGames );
 			} else if (n.equals("ultimate game")) {			
 				gameVersion = 2;
 				numberOfCells = 3;
+				updateCheckBoxForTrapTile(false, vBoxForButtons, uniqueTileCheckBox, selectVersionOfGames);
 			} else if (n.equals("4*4 basic game")) {
 				gameVersion = 3;
 				numberOfCells = 4;
+				updateCheckBoxForTrapTile(true, vBoxForButtons, uniqueTileCheckBox, selectVersionOfGames);
 			}else if (n.equals("5*5 basic game")) {
 				gameVersion = 4;
 				numberOfCells = 5;
+				updateCheckBoxForTrapTile(true, vBoxForButtons, uniqueTileCheckBox, selectVersionOfGames);
 			}else if (n.equals("Territory Tic-Tac-Toe")) {
 				gameVersion = 5;
 				numberOfCells = 5;
+				updateCheckBoxForTrapTile(false, vBoxForButtons, uniqueTileCheckBox, selectVersionOfGames);
 			}else if (n.equals("6*6 basic game")) {
 				gameVersion = 6;
 				numberOfCells = 6;
+				updateCheckBoxForTrapTile(true, vBoxForButtons, uniqueTileCheckBox, selectVersionOfGames);
 			}
 			
 		});
@@ -235,6 +245,12 @@ public class MainView {
 			if (!selectNumberOfPlayers.getSelectionModel().isEmpty() && !selectVersionOfGames.getSelectionModel().isEmpty()) {
 				// remove "ask number of players" 
 				vBoxForButtons.getChildren().clear();
+				// check whether the player wants to play with unique tiles
+				if (uniqueTileCheckBox.isSelected()) {
+					hasUniqueTile = true;
+				}else {
+					hasUniqueTile = false;
+				}
 				
 				// call another function to get timeout, user names, and markers 
 				getPlayerInfo(vBoxForButtons);
@@ -491,8 +507,8 @@ public class MainView {
 					marker.add(marker2);
 				}
 				
-				// create a game
-				ticTacToe.startNewGame(numPlayer, timeout, gameVersion, numberOfCells);
+				// create a game 
+				ticTacToe.startNewGame(numPlayer, timeout, gameVersion, numberOfCells, hasUniqueTile);
 				
 				// create players	
 				// one player
@@ -614,10 +630,17 @@ public class MainView {
 						timer.stop();
 						
 						// show the human lost the game
-						System.out.println("Human lost");
-						Square.playSound("src/loseSound.mp3");
+						//System.out.println("Human lost");
 						
-						turnLabel.setText(username.get(0) + " lost the game.");
+						
+						if (hasUniqueTile && MainView.ticTacToe.getUniqueTileClicked()) {
+							turnLabel.setText(username.get(0) + " won the game. Computer clicked on the trap tile.");
+							Square.playSound("src/winSound.mp3");
+						}else {
+							turnLabel.setText(username.get(0) + " lost the game.");
+							Square.playSound("src/loseSound.mp3");
+						}
+						
 						// update the lose condition for the human player and store results
 						ticTacToe.player.get(0).setLose();
 						ticTacToe.getHashMap().put(username.get(0), ticTacToe.player.get(0));
@@ -681,7 +704,19 @@ public class MainView {
 		});
 	} // end of playGame
 	
-	
+	private void updateCheckBoxForTrapTile(boolean allow, VBox vb, CheckBox cb, ComboBox<String> comb) {
+		int properLocationForCB = vb.getChildren().indexOf(comb);
+		if (allow) {
+			if (!vb.getChildren().contains(cb)) {
+				vb.getChildren().add (properLocationForCB + 1, cb);
+			}
+		} 			
+		else {
+				 if (vb.getChildren().contains(cb)) {
+						vb.getChildren().remove (cb);
+				}
+		}
+	}
 
 	public Scene getMainScene() {
 		return this.scene;

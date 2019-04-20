@@ -8,7 +8,7 @@ import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-
+import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.Text;
@@ -29,6 +29,8 @@ public class Square extends BorderPane implements Squares {
 	private int currentPlayerID;
 	private boolean isUnpickable;
 	private boolean isNeutral;
+	private boolean isTrap;
+	
 	public Square (int square_id, int board_id, String marker) {
 		squareID = square_id;
 		boardID = board_id;
@@ -274,6 +276,14 @@ public class Square extends BorderPane implements Squares {
 		return isNeutral;
 	}
 	
+	public boolean getIsTrap () {
+		return isTrap;
+	}
+	
+	public void setIsTrap (boolean isTrap) {
+		this.isTrap = isTrap;
+	}
+	
 	private void AI_Move_CheckWin() {
 		// generate row & column, call updatePlayerMove
 		Random rand = new Random(); 
@@ -317,12 +327,18 @@ public class Square extends BorderPane implements Squares {
 	
 	
 	private void checkGameIsOver(int gameState) {
+		 currentPlayerID = MainView.ticTacToe.getPlayerID();
 		// someone won the game
 		if ( gameState == 1 || gameState == 2) {
-			MainView.turnLabel.setText(MainView.ticTacToe.player.get(currentPlayerID-1).getUsername() + " won the game.");
-
+			if (MainView.ticTacToe.getUniqueTileClicked()) {
+				MainView.turnLabel.setText(MainView.ticTacToe.player.get(currentPlayerID-1).getUsername() + " won the game. " 
+			+ MainView.ticTacToe.player.get(2-currentPlayerID).getUsername()  +" clicked on the trap tile.");
+			}else {
+				MainView.turnLabel.setText(MainView.ticTacToe.player.get(currentPlayerID-1).getUsername() + " won the game.");
+			}
+			
 			if ( MainView.ticTacToe.getNumberPlayers() == 2 || (MainView.ticTacToe.getNumberPlayers() == 1 && currentPlayerID == 1 ) ) {
-				System.out.println("music plays");
+				//System.out.println("music plays");
 				playSound("src/winSound.mp3");
 			}
 			else if (MainView.ticTacToe.getNumberPlayers() == 1 && currentPlayerID != 1) {
@@ -382,10 +398,13 @@ public class Square extends BorderPane implements Squares {
 	
 	
 	public static void playSound(final String FILE_PATH) {
-		Media media_win = new Media (Paths.get(FILE_PATH).toUri().toString()); //https://vocaroo.com/i/s1Ho8LVVYJRD
-		MediaPlayer mediaPlayer = new MediaPlayer(media_win);
-		mediaPlayer.setAutoPlay(true);
-		mediaPlayer.play();
+		//Media media_win = new Media (Paths.get(FILE_PATH).toUri().toString()); //https://vocaroo.com/i/s1Ho8LVVYJRD
+		//MediaPlayer mediaPlayer = new MediaPlayer(media_win);
+		//mediaPlayer.setAutoPlay(true);
+		//mediaPlayer.play();
+		
+		AudioClip music = new AudioClip(Paths.get(FILE_PATH).toUri().toString());
+		music.play();
 	} // end of playSound()
 	
 } // end of Square class

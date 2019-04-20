@@ -26,7 +26,7 @@ public class UltimateGameBoard extends Board {
 		for (int i = 0; i < numberOfCells; i ++) {
 			for (int j = 0; j < numberOfCells; j++, id++) {
 				//System.out.println("id: " + id);
-				ultimateTwoD[i][j] = new BasicGameBoard(id, numberOfCells,"   ");
+				ultimateTwoD[i][j] = new BasicGameBoard(id, false, numberOfCells,"   ");
 				MainView.ticTacToe.setBasicGameBoardList(ultimateTwoD[i][j]);
 				gridPane.add(ultimateTwoD[i][j].display(),j,i);
 				if (MainView.getGameVersion() == 2) {

@@ -25,6 +25,8 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	private int timeout = 0;
 	private int gameVersion = 0;
 	private int numberOfCells = 0;
+	private boolean containsUniqueTile = false;
+	private boolean uniqueTileClicked = false;
 	private BasicGameBoard basicBoard;
 	private UltimateGameBoard ultimateBoard;
 	private int playerID = 1;
@@ -56,9 +58,11 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	 * 						int <=0 means no timeout.  Any int > 0 means to time out
 	 * 						in the given number of seconds.
 	 */
-	public void startNewGame(int numPlayers, int timeoutInSecs, int gameVersion, int numberOfCells) {
+	public void startNewGame(int numPlayers, int timeoutInSecs, int gameVersion, int numberOfCells, boolean hasUniqueTile) {
 		this.gameVersion = gameVersion;
 		this.numberOfCells = numberOfCells;
+		this.containsUniqueTile = hasUniqueTile;
+		this.uniqueTileClicked = false;
 		validBasicGameBoardMap.clear();
 		basicGameBoardList.clear();
 		if (numPlayers != 2 && numPlayers != 1) {
@@ -70,7 +74,7 @@ public class TTTControllerImpl implements TTTControllerInterface {
 			// create a new board if this is the first time to play
 			if (!isReplay) {
 				if (gameVersion != 2) {					
-					basicBoard = new BasicGameBoard(0, numberOfCells, "   ");	
+					basicBoard = new BasicGameBoard(0, hasUniqueTile, numberOfCells, "   ");	
 					setBasicGameBoardList(basicBoard);
 					basicGameBoardMap.put(gameVersion, basicBoard);
 				}else {
@@ -87,7 +91,7 @@ public class TTTControllerImpl implements TTTControllerInterface {
 						setBasicGameBoardList(basicBoard);
 						validBasicGameBoardMap.put(0, basicBoard.basicTwoD);
 					}else {
-						basicBoard = new BasicGameBoard(0, numberOfCells, "   ");	
+						basicBoard = new BasicGameBoard(0, hasUniqueTile, numberOfCells, "   ");	
 						setBasicGameBoardList(basicBoard);
 						basicGameBoardMap.put(gameVersion, basicBoard);
 					}
@@ -221,6 +225,21 @@ public class TTTControllerImpl implements TTTControllerInterface {
 				
 		}
 		
+		// check if the trap tile has been clicked
+		else if (this.containsUniqueTile && uniqueTileClicked) {
+			//System.out.println("containsUniqueTile: " + this.containsUniqueTile + " uniqueTileClicked: " + uniqueTileClicked);
+			setCurrentPlayer(playerID);
+			if (playerID == 1) {
+				gameState = 1;
+				return 1;
+			}
+				
+			else {
+				gameState = 2;
+				return 2;
+			}
+		}
+		
 		// check if the game is in progress
 		else if (board.isEmptySpaceAvailable()) {
 			if (MainView.getGameVersion() == 2) {
@@ -285,6 +304,22 @@ public class TTTControllerImpl implements TTTControllerInterface {
 		return false;
        
 	} // end of updatePlayerMove
+	
+	
+	// return containsUniqueTile
+	public boolean getContainsUniqueTile () {
+		return containsUniqueTile;
+	}
+	
+	// return uniqueTile clicked
+	public boolean getUniqueTileClicked () {
+		return uniqueTileClicked;
+	}
+	
+	// set uniqueTile clicked
+	public void setUniqueTileClicked (boolean isClicked) {
+		uniqueTileClicked = isClicked;
+	}
 	
 	// change turn
 	public int setCurrentPlayer(int playerID) {

@@ -21,21 +21,28 @@ public class BasicGameBoard extends Board implements Squares {
 	private boolean isMarked = false;
 	private int numberOfCells;
 	int[] territorySpots = new int[4];
+	boolean containsUniqueTile = false;
+	int uniqueTileID;
 	//private int boardFormat = 0;
 	// constructor
-	public BasicGameBoard(int id, int numberOfCells, String boardMarker) {
+	public BasicGameBoard(int id, boolean hasUniqueTile, int numberOfCells, String boardMarker) {
 		boardID = id;
 		this.numberOfCells = numberOfCells;
 		this.boardMarker = boardMarker;
 		gridPaneBasic = new GridPane();
 		basicTwoD = new Square[numberOfCells][numberOfCells];
 		int squareID = 0;
-		
+		this.containsUniqueTile = hasUniqueTile;
 		
 		// generate four random spots (neutral spots and unpickable spots) if gameVersion is 5
 		if (MainView.getGameVersion() == 5) {
 			territorySpots = new Random().ints(0, 25).distinct().limit(4).toArray();
 			//System.out.println(territorySpots[0] + " " + territorySpots[1] + " " + territorySpots[2] + " " + territorySpots[3] + " ");
+		}
+		
+		// unique tile
+		if (this.containsUniqueTile) {
+			uniqueTileID = (int)(Math.random()*(Math.pow(numberOfCells, 2)));
 		}
 		
 		
@@ -44,6 +51,11 @@ public class BasicGameBoard extends Board implements Squares {
 			//System.out.println("create ultimate game board");
 			for (int j = 0; j < numberOfCells; j++, squareID++) {
 				gridPaneBasic.add(basicTwoD[i][j] = new Square(squareID, boardID, "   "),j,i);
+				if (this.containsUniqueTile && squareID == uniqueTileID) {
+					basicTwoD[i][j].setIsTrap(true);
+					System.out.println("row: " + i + " col: " + j);
+				}
+				
 				if (MainView.getGameVersion() == 5 && (squareID == territorySpots[0] || squareID == territorySpots[1])) {
 					basicTwoD[i][j].setIsUnpickable(true);
 					basicTwoD[i][j].setMarker("✖ ", false);
@@ -72,12 +84,18 @@ public class BasicGameBoard extends Board implements Squares {
 
 	// check if there is a winner
 	public boolean hasWon(int row, int col, String marker) {
+		
+		if (basicTwoD[row][col].getIsTrap()) {
+			MainView.ticTacToe.setUniqueTileClicked(true);
+          	return false;
+		}
+		
 		boolean hasWon = true;
 		// check row
         for(int i=0; i< numberOfCells; i++){
-            if(!(basicTwoD[row][i].getMarker()).equals(marker) && !(basicTwoD[row][i].getIsNeutral())){
+        	if(!(basicTwoD[row][i].getMarker()).equals(marker) && !(basicTwoD[row][i].getIsNeutral())){
             	hasWon = false;
-            }
+            } 
         }
         
         if (hasWon) {
@@ -87,7 +105,7 @@ public class BasicGameBoard extends Board implements Squares {
         hasWon = true;
     	// check column
         for(int i=0; i<numberOfCells; i++){
-            if(!(basicTwoD[i][col].getMarker()).equals(marker) && !(basicTwoD[i][col].getIsNeutral())){
+        	if(basicTwoD[i][col].getIsTrap() || (!(basicTwoD[i][col].getMarker()).equals(marker) && !(basicTwoD[i][col].getIsNeutral()))){
             	hasWon = false;
             }
         }
@@ -97,9 +115,10 @@ public class BasicGameBoard extends Board implements Squares {
 	    hasWon = true;
         // check back diagonal
         for(int i=0; i<numberOfCells; i++){
-        	if(!(basicTwoD[i][i].getMarker()).equals(marker) && !(basicTwoD[i][i].getIsNeutral())){		        		
+        	if(basicTwoD[i][i].getIsTrap() || (!(basicTwoD[i][i].getMarker()).equals(marker) && !(basicTwoD[i][i].getIsNeutral()))){		        		
         		hasWon = false;
         	}
+        	
         }
 
         if (hasWon) return hasWon;
@@ -107,9 +126,10 @@ public class BasicGameBoard extends Board implements Squares {
         hasWon = true;
         // check forward diagonal
         for(int i=0, j=numberOfCells-1; i<numberOfCells; i++, j--){
-        	if(!(basicTwoD[i][j].getMarker()).equals(marker) && !(basicTwoD[i][j].getIsNeutral())){
+        	if(basicTwoD[i][j].getIsTrap() || (!(basicTwoD[i][j].getMarker()).equals(marker) && !(basicTwoD[i][j].getIsNeutral()))){
         		hasWon = false;	
         	}
+        	 
         }
     
 	    
@@ -118,6 +138,7 @@ public class BasicGameBoard extends Board implements Squares {
 			
 			
 		public void reset() {
+			this.containsUniqueTile = MainView.ticTacToe.getContainsUniqueTile();
 			if (MainView.getGameVersion() != 2) {
 				gridPaneBasic.getChildren().clear();
 			}
@@ -126,6 +147,12 @@ public class BasicGameBoard extends Board implements Squares {
 				territorySpots = new Random().ints(0, 25).distinct().limit(4).toArray();
 				//System.out.println(territorySpots[0] + " " + territorySpots[1] + " " + territorySpots[2] + " " + territorySpots[3] + " ");
 			}
+			
+			// unique tile
+			if (this.containsUniqueTile) {
+				uniqueTileID = (int)(Math.random()*(Math.pow(numberOfCells, 2)));
+			}
+			
 			
 			//System.out.println("basic gmae board id: " + boardID + " number of cells: " + numberOfCells);
 			//MainView.ticTacToe.validBasicGameBoardMap.put(0, this.basicTwoD);
@@ -136,6 +163,12 @@ public class BasicGameBoard extends Board implements Squares {
 					this.basicTwoD[i][j].getStyleClass().removeIf(style -> style.equals("neutral"));
 					if (MainView.getGameVersion() != 2) {
 						gridPaneBasic.add(basicTwoD[i][j], j, i);
+					}
+					basicTwoD[i][j].setIsTrap(false);
+					
+					if (this.containsUniqueTile && this.basicTwoD[i][j].getSquareID() == uniqueTileID) {
+						basicTwoD[i][j].setIsTrap(true);
+						System.out.println("row: " + i + " col: " + j);
 					}
 					
 					if (MainView.getGameVersion() == 5 && (this.basicTwoD[i][j].getSquareID() == territorySpots[0] || this.basicTwoD[i][j].getSquareID() == territorySpots[1])) {
@@ -153,6 +186,7 @@ public class BasicGameBoard extends Board implements Squares {
 					
 				}
 			}
+			
 			
 			
 				
