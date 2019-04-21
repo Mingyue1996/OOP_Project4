@@ -237,10 +237,9 @@ public class Square extends BorderPane implements Squares {
 								
 								}));
 								if (MainView.getGameVersion () != 2) {
-									MainView.timerSquare.setCycleCount(MainView.ticTacToe.getNumberOfCells() * MainView.ticTacToe.getNumberOfCells());
+									MainView.timerSquare.setCycleCount((int) (Math.pow(MainView.ticTacToe.getNumberOfCells(), 2)));
 								}else {
-									MainView.timerSquare.setCycleCount(MainView.ticTacToe.getNumberOfCells() * MainView.ticTacToe.getNumberOfCells()
-											* MainView.ticTacToe.getNumberOfCells() * MainView.ticTacToe.getNumberOfCells());
+									MainView.timerSquare.setCycleCount((int) (Math.pow(MainView.ticTacToe.getNumberOfCells(), 4)));
 								}
 								MainView.timerSquare.play();
 							

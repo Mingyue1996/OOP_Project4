@@ -70,7 +70,7 @@ public class MainView {
     private ArrayList<String> userInfoArrayList = new ArrayList<String>();
     private ArrayList<String> usernameArrayList = new ArrayList<String>();
     
-    private String[] imageOption = {"♫", "☀", "✈", "♕"};
+    private String[] imageOption = {"♫", "☀", "✈", "♕", "❀", "✌"};
     private Button checkOldUser = new Button("Check previous game results");
     
     private ListView<String> lvUsername;
@@ -97,6 +97,7 @@ public class MainView {
 		vBoxForGame.getChildren().clear();		
 		// add radio buttons
 		root.setCenter(getNumPlayers());
+		root.setStyle("-fx-background-color: lightblue;");
 		//clear user name and marker lists
 		username.clear();
 		marker.clear();
@@ -588,6 +589,7 @@ public class MainView {
 	
 	// playGame
 	public void playGame() {
+		//root.setStyle("-fx-background-color: wheat");
 		// add a  game title
 		root.setTop(new CustomPane("Welcome to Tic Tac Toe!"));
 		
@@ -665,11 +667,17 @@ public class MainView {
 				}
 			
 			}));
-			if (gameVersion != 2) {
-				timer.setCycleCount(numberOfCells * numberOfCells);
-			}else {
-				timer.setCycleCount(numberOfCells * numberOfCells * numberOfCells * numberOfCells);
+			if (ticTacToe.getNumberPlayers() == 1) {
+				if (gameVersion != 2) {
+					timer.setCycleCount((int) (Math.pow(MainView.ticTacToe.getNumberOfCells(), 2)));
+				}else {
+					timer.setCycleCount((int) (Math.pow(MainView.ticTacToe.getNumberOfCells(), 4)));
+				}
 			}
+			else {
+				timer.setCycleCount(Timeline.INDEFINITE);
+			}
+			
 			
 			timer.play();
 		} // end of timeout
