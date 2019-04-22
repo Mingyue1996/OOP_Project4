@@ -1,6 +1,7 @@
 package oop.player;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class Player implements Serializable {
 
@@ -17,6 +18,8 @@ public class Player implements Serializable {
 	
 	private int winNum; 
 	private int loseNum;
+	private ArrayList<String> personalMarkers = new ArrayList<>();
+	private ArrayList<String> personalMarkerWins = new ArrayList<>();
 	
 	public Player() {
 		
@@ -62,6 +65,25 @@ public class Player implements Serializable {
 	public void setLose() {
 		loseNum ++;
 	}
+	
+	public ArrayList<String> getPersonalMarkers() {
+		return personalMarkers;
+	}
+	
+	public void setPersonalMarkers(ArrayList<String> al) {
+		personalMarkers.addAll(al);
+	}
+	
+	public ArrayList<String> getPersonalMarkerWins() {
+		return this.personalMarkerWins;
+	}
+	
+	public void setPersonalMarkerWins(ArrayList<String> al) {
+		personalMarkerWins.addAll(al);
+	}
+	
+	
+	
 
 
 

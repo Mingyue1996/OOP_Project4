@@ -1,6 +1,7 @@
 package oop.view;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -12,6 +13,7 @@ import oop.player.Player;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -22,6 +24,8 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MultipleSelectionModel;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -29,10 +33,12 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import javafx.beans.value.ObservableValue;
 
 //import main.course.oop.tictactoe.util.TwoDArray;
 
 public class MainView {
+	int size;
 	public static BorderPane root;
 	private Scene scene; 
 	private StackPane pane = new StackPane();
@@ -62,24 +68,55 @@ public class MainView {
     private Text timeStringErrorText = new Text ("Time out must be an integer");
     private Text duplicateInputsText = new Text ("Two players cannot use the same username or marker.");
     private Text emptySelectionFirstScene = new Text ("Please select all the fields below.");
+    private Text lackWinsErrorText = new Text ("You don't have enough wins to redeem all the selected prizes.");
+    private Text lackUsernameErrorText = new Text ("Please select a user name.");
     
     private boolean hasUniqueTile;
-    private String username1, username2, marker1, marker2;
+    private String username_gift, username1, username2, marker1, marker2;
     public static Timeline timerSquare;
     public static Button quitBtn;
     private ArrayList<String> userInfoArrayList = new ArrayList<String>();
     private ArrayList<String> usernameArrayList = new ArrayList<String>();
+    private ArrayList<String> username_WinArrayList = new ArrayList<String>();
+    private ArrayList<String> chosenMarkers = new ArrayList<String> ();
+    private ArrayList<String> chosenMarkerWins = new ArrayList<String> ();
+    private ArrayList<String> wholeGiftList = new ArrayList<String>();
+	// Create a gift list
+	private ObservableList<String> giftList;
+	private ObservableList<String> markerList1;
+	private ObservableList<String> markerList2;
+	// create a list view for players to choose multiple markers
+	ListView<String> giftsLV = new ListView<>(giftList);
     
-    private String[] imageOption = {"♫", "☀", "✈", "♕", "❀", "✌"};
+    private ArrayList<String> imageOption = new ArrayList<String>();
     private Button checkOldUser = new Button("Check previous game results");
     
     private ListView<String> lvUsername;
-    
+    private int numberOfWins;
+    private int chosenMaxNumberOfWins;
+    private int index;
     
     //public static Timeline timerSquare;
     
 	public MainView() {
-		
+		/*
+		  "✰  (need 2 wins) ",
+			        "❤  (need 5 wins)",
+			        "⌘ (need 8 wins)",
+			        "✞  (need 12 wins)",
+			        "☎  (need 18 wins)",
+			        "✂  (need 25 wins)",
+			        "➹  (need 35 wins)",
+			        "☂   (need 45 wins)",
+			        "❄  (need 55 wins)",
+			        "☯  (need 70 wins)"
+		 */
+		imageOption.add("♫");
+		imageOption.add("☀");
+		imageOption.add("✈");
+		imageOption.add("♕");
+		imageOption.add("❀");
+
 		MainView.root = new BorderPane();
 		this.scene = new Scene(root, windowWidth, windowHeight);
 
@@ -182,21 +219,35 @@ public class MainView {
 		CheckBox uniqueTileCheckBox = new CheckBox ("Contain a trap tile");
 		uniqueTileCheckBox.getStyleClass().add("uniqueTileCheckBox");
 		
+		// add a button to giver users a chance to get gifts
+		Button shopButton = new Button ("shop");
+		shopButton.getStyleClass().add("shopButton");
+		
 		// create two buttons: continue and quit
 		Button continueButton = new Button("Continue");
 		Button quitButton = new Button("Quit the game");
 		
+		continueButton.getStyleClass().add("continueButton");
+		quitButton.getStyleClass().add("quitButton");
+		
 		/****************Add 1st game menu to GUI********************/
 		// add buttons to the pane
-		vBoxForButtons.getChildren().addAll(selectNumberOfPlayers, selectVersionOfGames, continueButton, quitButton);	
+		vBoxForButtons.getChildren().addAll(selectNumberOfPlayers, selectVersionOfGames, continueButton, shopButton, quitButton);	
 		vBoxForButtons.setAlignment(Pos.CENTER);
 		
 		pane.getChildren().addAll(vBoxForButtons);
 		
-		//quit the game if "quit" is clicked
+		// quit the game if "quit" is clicked
 		quitButton.setOnAction(e -> {
 			ticTacToe.saveInfo();
 			System.exit(0);
+		});
+		
+		// go to the gift shop to buy gifts
+		shopButton.setOnAction ( e->{
+			vBoxForButtons.getChildren().clear();
+			shop(vBoxForButtons);
+			addWholeGiftList();
 		});
 		
 		// update the # of players
@@ -266,7 +317,142 @@ public class MainView {
 		});
 				
 		return pane;
-	}
+	} // end of get # of players and the version of games
+	
+	
+	public void shop (VBox vbox) {
+		if (VBoxRootLeft.getChildren().contains(checkOldUser)) {
+			VBoxRootLeft.getChildren().remove(checkOldUser);
+		}
+
+		
+		// create a list for all the previous user names
+		displayInfo();
+		ObservableList<String> username_WinOption = FXCollections.observableArrayList(username_WinArrayList);
+		ComboBox<String> chooseUsername = new ComboBox<>(username_WinOption);
+	
+		chooseUsername.setPromptText("Select your user name");
+		
+
+		// get user name 
+		chooseUsername.valueProperty().addListener((obs, old, n) -> {
+			wholeGiftList.clear();
+			addWholeGiftList();
+			username_gift = n; 	
+			index = username_WinArrayList.indexOf(username_gift);
+			// update number of wins for this user			
+			String s = username_gift.substring(username_gift.indexOf("(") + 1);
+			numberOfWins = Integer.parseInt(s.substring(0, s.indexOf(" ")));
+			//System.out.println("numberOfWins " + numberOfWins);
+			
+			// update the list
+			String username_only = usernameArrayList.get(index);
+			System.out.println("username only: " + username_only);
+			ArrayList<String> temp_pMarkerWins = ticTacToe.getHashMap().get(username_only).getPersonalMarkerWins();
+			//System.out.println(ticTacToe.getHashMap().get(username_only).getPersonalMarkerWins());
+			wholeGiftList.removeAll(temp_pMarkerWins);
+	
+			giftList = FXCollections.observableArrayList(wholeGiftList);
+			//System.out.println(giftList);
+			giftsLV.setItems(giftList);
+
+		});
+		
+		addWholeGiftList();
+		giftList = FXCollections.observableArrayList(wholeGiftList);
+		giftsLV.setItems(giftList);
+		giftsLV.setMaxHeight(200);
+		giftsLV.setMaxWidth(200);
+		giftsLV.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+		giftsLV.setEditable(false);
+		
+		// get players' choice (gifts)		
+		giftsLV.getSelectionModel().getSelectedItems().addListener((ListChangeListener.Change<? extends String> c)  -> {
+			chosenMarkerWins.clear();
+			verifySelectedItems(giftsLV.getSelectionModel());
+			size = giftsLV.getSelectionModel().getSelectedIndices().size();
+			if (size != 0) {
+				String gift = giftsLV.getSelectionModel().getSelectedItems().get(size-1);
+				String s = gift.substring(gift.indexOf("d") + 2);
+				chosenMaxNumberOfWins = Integer.parseInt(s.substring(0, s.indexOf(" ")));
+				chosenMarkerWins.addAll(giftsLV.getSelectionModel().getSelectedItems());
+			}else {
+				chosenMaxNumberOfWins = 0;
+			}
+			
+			//System.out.println("after: "+giftsLV.getSelectionModel().getSelectedItems());
+			
+			
+		});
+		
+		
+		/* create a confirm button to 
+			1. go back to the menu 
+			2. check if users redeem successfully
+			3. update users' marker list
+		*/
+		Button confirmButton = new Button ("Confirm");		
+		confirmButton.getStyleClass().add("confirmButton");
+		
+		confirmButton.setOnAction(e -> {
+			if (vbox.getChildren().contains(lackUsernameErrorText)) {
+				vbox.getChildren().remove(lackUsernameErrorText);
+			}
+			if (vbox.getChildren().contains(lackWinsErrorText)) {
+				vbox.getChildren().remove(lackWinsErrorText);
+			}
+			
+			if (chooseUsername.getItems().size() == 0) {
+				// go back to the menu scene
+				getMainView();
+			}
+			
+			if (chooseUsername.getSelectionModel().isEmpty() && chosenMaxNumberOfWins != 0) {
+				if (!vbox.getChildren().contains(lackUsernameErrorText)) {
+					vbox.getChildren().add(0, lackUsernameErrorText);
+				}
+			}
+			else if (chosenMaxNumberOfWins == 0) {
+				// go back to the menu scene
+				getMainView();
+			}
+			else {
+				if(numberOfWins < chosenMaxNumberOfWins) 
+				{
+					if (!vbox.getChildren().contains(lackWinsErrorText)) {
+						vbox.getChildren().add(0, lackWinsErrorText);
+					}
+				}else {
+					
+					// update the list
+					index = username_WinArrayList.indexOf(username_gift);
+					String username_only = usernameArrayList.get(index);
+					System.out.println("username only: " + username_only);
+					// update the player's markers with/without wins
+					ticTacToe.getHashMap().get(username_only).setPersonalMarkerWins(chosenMarkerWins);
+					
+					ArrayList<String> temp_markersOnly = new ArrayList<>();
+					// extract markers now
+					for(String s: chosenMarkerWins){
+						temp_markersOnly.add(Character.toString(s.charAt(0)));
+					}
+					if (temp_markersOnly.size() > 0) {
+						ticTacToe.getHashMap().get(username_only).setPersonalMarkers(temp_markersOnly);
+					}
+						//System.out.println("temp: " + temp_markersOnly.get(0));
+					
+					
+					// go back to the menu scene
+					getMainView();
+				}
+			}
+			
+			
+		});
+		
+		// add drop-down lists and buttons to the scene
+		vbox.getChildren().addAll(chooseUsername, giftsLV, confirmButton);
+	} // end of shop class
 	
 	
 	// get timeout, user names, and markers
@@ -308,6 +494,8 @@ public class MainView {
 		Button startButton = new Button("Start the Game");
 		Button quitButton = new Button("Quit the game");
 		
+		startButton.getStyleClass().add("continueButton");
+		quitButton.getStyleClass().add("quitButton");
 		// add buttons to the pane
 		vBoxForButtons.getChildren().addAll(startButton, quitButton);		
 		vBoxForButtons.setAlignment(Pos.CENTER);
@@ -361,47 +549,15 @@ public class MainView {
 		} // end of two users
 		
 		
-		/*****************************************Select/Ask user name 1**************************/ 
-		// create a list for all the previous user names
-		displayInfo();
-		ObservableList<String> usernameOption = FXCollections.observableArrayList(usernameArrayList);
-		ComboBox<String> enterUsername1 = new ComboBox<>(usernameOption);
-		enterUsername1.setEditable(true);
-		
-		// add combox box to the GUI
-		gridPaneForInfo.add(enterUsername1, 1, 1);
-		
-		// get user name 1
-		enterUsername1.valueProperty().addListener((obs, old, n) -> {
-			username1 = n; 		
-		});
 		
 		
-		/************************************Select/Ask user name 2*********************************/
-		ComboBox<String> enterUsername2 = new ComboBox<>(usernameOption);
-		enterUsername2.setEditable(true);
 		
-	
-		// get user name 2
-		enterUsername2.valueProperty().addListener((obs, old, n) -> {
-			username2 = n; 		
-		});
-		
-		// add "enter user name 2" to GUI
-		if (numPlayer == 2) {	
-			// add combox box to the GUI
-			gridPaneForInfo.add(enterUsername2, 1, 3);
-			
-		}
-			
-
-
 		/********************Enter your marker1************************/
 		ObservableList<String> markerOption = FXCollections.observableArrayList(imageOption);
 		ComboBox<String> enterMarker1 = new ComboBox<>(markerOption);
 		enterMarker1.setEditable(true);
 		gridPaneForInfo.add(enterMarker1, 1, 2);
-		
+	
 		
 		enterMarker1.valueProperty().addListener((obs, old, n) -> {
 			marker1 = n;		
@@ -415,6 +571,64 @@ public class MainView {
 		enterMarker2.valueProperty().addListener((obs, old, n) -> {
 			marker2 = n;		
 		});
+		
+		
+		/*****************************************Select/Ask user name 1**************************/ 
+		// create a list for all the previous user names
+		displayInfo();
+		ObservableList<String> usernameOption = FXCollections.observableArrayList(usernameArrayList);
+		ComboBox<String> enterUsername1 = new ComboBox<>(usernameOption);
+		enterUsername1.setEditable(true);
+		
+		// add combox box to the GUI
+		gridPaneForInfo.add(enterUsername1, 1, 1);
+		
+		// get user name 1
+		enterUsername1.valueProperty().addListener((obs, old, n) -> {
+			username1 = n; 		
+			
+			// check if the user name is a previous one
+			if (ticTacToe.getHashMap().containsKey(username1)) {
+				markerList1 = FXCollections.observableArrayList(ticTacToe.getHashMap().get(username1).getPersonalMarkers());
+				enterMarker1.setItems(markerList1);
+			} // end of user name is a previous one
+			else {
+				markerList1 = FXCollections.observableArrayList (imageOption);
+				enterMarker1.setItems(markerList1);
+			}
+		});
+		
+		
+		/************************************Select/Ask user name 2*********************************/
+		ComboBox<String> enterUsername2 = new ComboBox<>(usernameOption);
+		enterUsername2.setEditable(true);
+		
+	
+		// get user name 2
+		enterUsername2.valueProperty().addListener((obs, old, n) -> {
+			username2 = n; 	
+			
+			// check if the user name is a previous one
+			if (ticTacToe.getHashMap().containsKey(username2)) {
+				markerList2 = FXCollections.observableArrayList(ticTacToe.getHashMap().get(username2).getPersonalMarkers());
+				enterMarker2.setItems(markerList2);
+			} // end of user name is a previous one
+			else {
+				markerList2 = FXCollections.observableArrayList (imageOption);
+				enterMarker2.setItems(markerList2);
+			}
+		});
+		
+		// add "enter user name 2" to GUI
+		if (numPlayer == 2) {	
+			// add combo box to the GUI
+			gridPaneForInfo.add(enterUsername2, 1, 3);
+			
+		}
+			
+
+
+	
 			
 		
 		if (numPlayer == 2) {		
@@ -456,10 +670,11 @@ public class MainView {
 			if (username1.trim().equals("Computer") || username2.trim().equals("Computer")) {
 				emptyErrors = true;
 			}
+			//System.out.println("marker: " + marker1);
 			
 			// user names and markers cannot be empty
-			if  (username1.trim().length() == 0 || marker1.trim().length() == 0 ||
-				(numPlayer == 2 && (username2.trim().length() == 0 || marker2.trim().length() == 0))) {
+			if  (marker1 == null || username1.trim().length() == 0 || marker1.trim().length() == 0 ||  
+				(numPlayer == 2 && (marker2 == null ||  username2.trim().length() == 0 || marker2.trim().length() == 0)) ) {
 				emptyErrors = true;
 				
 			} // end of emptyErrors
@@ -526,6 +741,7 @@ public class MainView {
 					}
 					else {
 						ticTacToe.createPlayer(username.get(0), marker.get(0), 1);	
+						ticTacToe.player.get(0).setPersonalMarkers(imageOption);
 					}
 					// create a computer player
 					ticTacToe.setIsHumanPlayer(false);
@@ -546,6 +762,7 @@ public class MainView {
 					}
 					else {
 						ticTacToe.createPlayer(username.get(0), marker.get(0), 1);
+						ticTacToe.player.get(0).setPersonalMarkers(imageOption);
 					}
 					
 					// if we choose a user name2, use the original player object				
@@ -558,6 +775,7 @@ public class MainView {
 					else {
 						// create a player
 						ticTacToe.createPlayer(username.get(1), marker.get(1), 2);
+						ticTacToe.player.get(1).setPersonalMarkers(imageOption);
 					}
 					
 				} // end of create two human players
@@ -601,6 +819,8 @@ public class MainView {
 		
 		// create a quit button in the middle of the game
 		quitBtn = new Button ("Quit the game");
+
+		quitBtn.getStyleClass().add("quitButton");
 		
 		vBoxForGame.getChildren().addAll(turnLabel, quitBtn);
 		vBoxForGame.setAlignment(Pos.CENTER);
@@ -692,6 +912,9 @@ public class MainView {
 		Button playAgainButton = new Button("Play Again");
 		Button quitButton = new Button("Quit the game");
 		
+		playAgainButton.getStyleClass().add("continueButton");
+		quitButton.getStyleClass().add("quitButton");
+		
 		if (Square.hBox.getChildren().size() == 0) {
 			Square.hBox.getChildren().addAll(playAgainButton, quitButton);
 
@@ -774,20 +997,55 @@ public class MainView {
 		return numberOfCells;
 	}
 	
+	public void addWholeGiftList () {
+		wholeGiftList.add("✰  (need 2 wins)");
+		wholeGiftList.add("❤  (need 5 wins)");
+		wholeGiftList.add("⌘ (need 10 wins)");
+		wholeGiftList.add("✞  (need 15 wins)");
+		wholeGiftList.add("☎  (need 20 wins)");
+		wholeGiftList.add("✂  (need 30 wins)");
+		wholeGiftList.add("➹  (need 40 wins)");
+		wholeGiftList.add("☂   (need 55 wins)");
+		wholeGiftList.add("❄  (need 70 wins)");
+		wholeGiftList.add("☯  (need 85 wins)");
+		wholeGiftList.add("✌ (need 100 wins)");
+	}
+	
+	
+	protected <T> void verifySelectedItems(MultipleSelectionModel<T> selectionModel) { 
+        boolean problem = false; 
+        for (T item : selectionModel.getSelectedItems()) { 
+            if (item == null) { 
+                problem = true; 
+            } 
+        } 
+        if (problem) { 
+            ArrayList<Integer> selectedIndices = new ArrayList<>(selectionModel.getSelectedIndices()); 
+           // System.out.println("in function, selectedIndices: " );
+            for (int indice : selectedIndices) { 
+                selectionModel.select(indice); 
+            } 
+        } 
+    }
+	
+	
 	// display user information
 	public void displayInfo() {
+		String username;
 		 Set set = ticTacToe.getHashMap().entrySet();
 	      Iterator iterator = set.iterator();
 	      userInfoArrayList.clear();
 	      usernameArrayList.clear();
+	      username_WinArrayList.clear();
 	      while(iterator.hasNext()) {
 	         Map.Entry mentry = (Map.Entry)iterator.next();	
-	         
+	         username = ((Player) mentry.getValue()).getUsername();
 	         // store info into the array list
-	         userInfoArrayList.add(((Player) mentry.getValue()).getUsername()  + " (" + ((Player) mentry.getValue()).getMarker() + ") Win-Lose: " 
+	         userInfoArrayList.add(username  + " (" + ((Player) mentry.getValue()).getMarker() + ") Win-Lose: " 
 	         + ((Player) mentry.getValue()).getWin() + "-"+ ((Player) mentry.getValue()).getLose());
 	         
 	         usernameArrayList.add(((Player) mentry.getValue()).getUsername());
+	         username_WinArrayList.add(username + " (" +((Player) mentry.getValue()).getWin() + " wins)");
 	      }
 	} // end of displayInfo
 } // end of class MainView

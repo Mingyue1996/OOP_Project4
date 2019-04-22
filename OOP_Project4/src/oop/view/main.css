@@ -1,16 +1,42 @@
-/* 
 .root {
 	-fx-background-color: lightblue;
 }
-*/
 
-.submitButton {
-	-fx-color: orange;
+.confirmButton {
+	-fx-color: #bcff72;
+	-fx-background-radius: 5em;
+}
+.confirmButton:hover {
+	-fx-color: #95f925;	
 }
 
-.submitButton:hover {
-	-fx-color: #CCCCCC;
+.shopButton {
+	-fx-color: #ffcf91;
+	-fx-background-radius: 5em;
 }
+
+.shopButton:hover {
+	-fx-color: #ffa632;	
+}
+
+.continueButton {
+	-fx-color: #aef9e0;
+	-fx-background-radius: 5em;
+}
+
+.continueButton:hover {
+	-fx-color: #4bf4bc;	
+}
+
+.quitButton {
+	-fx-color: #ffab9e;
+	-fx-background-radius: 5em;
+}
+
+.quitButton:hover {
+	-fx-color: #ff5f47;	
+}
+
 
 #twoDArray {
 	-fx-font: bold 20pt "Arial";
