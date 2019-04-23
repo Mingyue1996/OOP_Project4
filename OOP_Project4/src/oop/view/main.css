@@ -48,23 +48,37 @@
 	-fx-fill: white;
 }
 
+.playerVSInfo {
+	-fx-font: bold 16pt "Arial";
+	-fx-text-fill: white;
+}
+.player1BGC {
+	-fx-text-fill: #ce12bf;
+}
+
+.player2BGC {
+	-fx-text-fill: #fc7e00;
+}
+
 .ultimateBoard {
     -fx-hgap: 10;
     -fx-vgap: 10;
     -fx-min-width: 200;
     -fx-min-height: 200;
 }
+.previousMove {
+	-fx-background-color: #fce700;
+}
 
 .basicBoard_player1 {
-	-fx-background-color: pink;
+	-fx-background-color: #ce12bf;
 }
 
 .basicBoard_player2 {
-	-fx-background-color: blueviolet;
+	-fx-background-color: #fc7e00;
 }
 
 .validBoard {
-	 
 	 -fx-background-color: white; 
 }
 
@@ -82,4 +96,12 @@
 
 .uniqueTileCheckBox {
 	-fx-padding:0 0 20 0;
+}
+
+.vBoxRootTop {
+	-fx-padding:0 0 20 0;
+}
+
+.vBoxForGame {
+	-fx-padding: 20 0 0 0;
 }

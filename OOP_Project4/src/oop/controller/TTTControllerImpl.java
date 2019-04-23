@@ -39,6 +39,7 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	private boolean isReplay = false;
 	private boolean isHumanPlayer = true;
 	private boolean isLastMoveValid = true;
+	private Square previousMove;
 	public ArrayList<Player> player = new ArrayList<>();
 	private HashMap<String, Player> userInfo = new HashMap<String, Player>();
 	private ArrayList<BasicGameBoard> basicGameBoardList = new ArrayList<>();
@@ -65,6 +66,10 @@ public class TTTControllerImpl implements TTTControllerInterface {
 		this.uniqueTileClicked = false;
 		validBasicGameBoardMap.clear();
 		basicGameBoardList.clear();
+		if (getPreviousMove() != null) {
+			getPreviousMove().getStyleClass().removeIf(style -> style.equals("previousMove"));
+		}
+		
 		if (numPlayers != 2 && numPlayers != 1) {
 			System.out.println("The number of players is invalid.");
 		}
@@ -277,7 +282,6 @@ public class TTTControllerImpl implements TTTControllerInterface {
 		// use basic game board list to return the valid game board
 		// System.out.println("valid board number: " + validBoardNumber);
 		if (getBasicGameBoardList(validBoardNumber).markBoard(row, col, marker)) {
-			// REMOVE style of previous moves
 			
 			// ADD style to the square to show the latest move
 			
@@ -426,7 +430,6 @@ public class TTTControllerImpl implements TTTControllerInterface {
 				}
 			} // end of inner for
 		}
-		
 		return squareIDArray[rowNum][colNum];
 	}
 	
@@ -447,6 +450,15 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	public int getCurrentBasicBoardLocationCol() {
 		return currentBasicBoardLocationCol;
 	}
+	
+	public Square getPreviousMove () {
+		return previousMove;
+	}
+	
+	public void setPreviousMove (Square newMove) {
+		previousMove = newMove;
+	}
+	
 	
 	// save user info including user names, markers, and win/loses
 	public void saveInfo () {

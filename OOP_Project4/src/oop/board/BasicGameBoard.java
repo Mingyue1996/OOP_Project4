@@ -209,6 +209,18 @@ public class BasicGameBoard extends Board implements Squares {
 		public boolean markBoard(int row, int col, String marker) {
 			if((!this.basicTwoD[row][col].getIsMarked())) {
 				this.basicTwoD[row][col].setMarker(marker, false);
+				if (MainView.getGameVersion() == 2) {
+					// REMOVE style of previous moves
+					if (MainView.ticTacToe.getPreviousMove() != null) {
+						MainView.ticTacToe.getPreviousMove().getStyleClass().removeIf(style -> style.equals("previousMove"));
+					}
+				
+					// ADD style to the square to show the latest move
+					this.basicTwoD[row][col].getStyleClass().add("previousMove");
+					MainView.ticTacToe.setPreviousMove(this.basicTwoD[row][col]);
+				}
+				
+				
 				return true;
 			}
 			return false;

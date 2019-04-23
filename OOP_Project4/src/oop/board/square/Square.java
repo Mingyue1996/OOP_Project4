@@ -1,7 +1,6 @@
 package oop.board.square;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Random;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -9,12 +8,8 @@ import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.media.AudioClip;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import oop.board.BasicGameBoard;
-import oop.board.Board;
 import oop.view.*;
 
 public class Square extends BorderPane implements Squares {
@@ -110,11 +105,19 @@ public class Square extends BorderPane implements Squares {
 				
 				setMarker(currentMarker, false);
 				
-				// REMOVE style of previous moves
+				if (MainView.getGameVersion() == 2) {
+					// REMOVE style of previous moves
+					//System.out.println(MainView.ticTacToe.getPreviousMove());
+					if (MainView.ticTacToe.getPreviousMove() != null) {
+						MainView.ticTacToe.getPreviousMove().getStyleClass().removeIf(style -> style.equals("previousMove"));
+					}
 				
-				// ADD style to the square to show the latest move
+					// ADD style to the square to show the latest move
+					this.getStyleClass().add("previousMove");
+					MainView.ticTacToe.setPreviousMove(this);
+				}
 				
-				
+				//System.out.println(MainView.ticTacToe.getPreviousMove() + " " + this);
 				//System.out.println(" square board ID: " + this.boardID);
 				MainView.ticTacToe.transformIntoSquareID(0,0, this.squareID, this.boardID, true);
 				int gameState = MainView.ticTacToe.determineWinner();

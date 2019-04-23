@@ -1,7 +1,6 @@
 package oop.view;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -29,11 +28,11 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import javafx.beans.value.ObservableValue;
 
 //import main.course.oop.tictactoe.util.TwoDArray;
 
@@ -64,12 +63,16 @@ public class MainView {
     private final int windowWidth = 1200; 
     private final int windowHeight = 900;
     VBox VBoxRootLeft = new VBox(10);
+    
+    private VBox VBoxRootTop = new VBox(5);
+    
     private Text emptyInputsText = new Text ("Fill in user name and marker. Computer cannot be username.");	
     private Text timeStringErrorText = new Text ("Time out must be an integer");
     private Text duplicateInputsText = new Text ("Two players cannot use the same username or marker.");
     private Text emptySelectionFirstScene = new Text ("Please select all the fields below.");
     private Text lackWinsErrorText = new Text ("You don't have enough wins to redeem all the selected prizes.");
     private Text lackUsernameErrorText = new Text ("Please select a user name.");
+    private Text shopHintText = new Text ("Press Ctrl when select/deselect item(s).");
     
     private boolean hasUniqueTile;
     private String username_gift, username1, username2, marker1, marker2;
@@ -78,7 +81,6 @@ public class MainView {
     private ArrayList<String> userInfoArrayList = new ArrayList<String>();
     private ArrayList<String> usernameArrayList = new ArrayList<String>();
     private ArrayList<String> username_WinArrayList = new ArrayList<String>();
-    private ArrayList<String> chosenMarkers = new ArrayList<String> ();
     private ArrayList<String> chosenMarkerWins = new ArrayList<String> ();
     private ArrayList<String> wholeGiftList = new ArrayList<String>();
 	// Create a gift list
@@ -129,7 +131,7 @@ public class MainView {
 	public void getMainView() {
 		root.setPadding(new Insets(50));
 		// add a  game title
-		root.setTop(new CustomPane("Welcome to Tic Tac Toe!"));		
+		root.setTop(new CustomPane("Welcome to Tic Tac Toe!", "textTitle"));		
 		// remove play again buttons and whoseTurn label
 		vBoxForGame.getChildren().clear();		
 		// add radio buttons
@@ -248,6 +250,9 @@ public class MainView {
 			vBoxForButtons.getChildren().clear();
 			shop(vBoxForButtons);
 			addWholeGiftList();
+			giftList = FXCollections.observableArrayList(wholeGiftList);
+			//System.out.println(giftList);
+			giftsLV.setItems(giftList);
 		});
 		
 		// update the # of players
@@ -324,7 +329,10 @@ public class MainView {
 		if (VBoxRootLeft.getChildren().contains(checkOldUser)) {
 			VBoxRootLeft.getChildren().remove(checkOldUser);
 		}
-
+		
+		if (!vbox.getChildren().contains(shopHintText)) {
+			vbox.getChildren().add(shopHintText);
+		}
 		
 		// create a list for all the previous user names
 		displayInfo();
@@ -336,7 +344,6 @@ public class MainView {
 
 		// get user name 
 		chooseUsername.valueProperty().addListener((obs, old, n) -> {
-			wholeGiftList.clear();
 			addWholeGiftList();
 			username_gift = n; 	
 			index = username_WinArrayList.indexOf(username_gift);
@@ -347,7 +354,7 @@ public class MainView {
 			
 			// update the list
 			String username_only = usernameArrayList.get(index);
-			System.out.println("username only: " + username_only);
+			//System.out.println("username only: " + username_only);
 			ArrayList<String> temp_pMarkerWins = ticTacToe.getHashMap().get(username_only).getPersonalMarkerWins();
 			//System.out.println(ticTacToe.getHashMap().get(username_only).getPersonalMarkerWins());
 			wholeGiftList.removeAll(temp_pMarkerWins);
@@ -427,7 +434,7 @@ public class MainView {
 					// update the list
 					index = username_WinArrayList.indexOf(username_gift);
 					String username_only = usernameArrayList.get(index);
-					System.out.println("username only: " + username_only);
+					//System.out.println("username only: " + username_only);
 					// update the player's markers with/without wins
 					ticTacToe.getHashMap().get(username_only).setPersonalMarkerWins(chosenMarkerWins);
 					
@@ -703,6 +710,7 @@ public class MainView {
 			if (!duplicateErrors && !emptyErrors) {
 
 				if (numPlayer == 1) {
+					username2 = "Computer";
 						humanPlayerID = 1;
 						// add user name and marker
 						username.add(username1);
@@ -808,8 +816,30 @@ public class MainView {
 	// playGame
 	public void playGame() {
 		//root.setStyle("-fx-background-color: wheat");
+		VBoxRootTop.getChildren().clear();
+		
+		CustomPane title = new CustomPane("Welcome to Tic Tac Toe!", "textTitle");
+		
+		HBox hBoxForPlayerVS = new HBox(5);
+		Label playerUsername1 = new Label (username1);
+		Label playerVS = new Label (" VS ");
+		Label playerUsername2 = new Label (username2);
+		
+		playerUsername1.getStyleClass().add("playerVSInfo");
+		playerUsername1.getStyleClass().add("player1BGC");
+		
+		playerVS.getStyleClass().add("playerVSInfo");
+		playerUsername2.getStyleClass().add("playerVSInfo");
+		playerUsername2.getStyleClass().add("player2BGC");
+		
+		hBoxForPlayerVS.getChildren().addAll(playerUsername1, playerVS, playerUsername2);
+		hBoxForPlayerVS.setAlignment(Pos.CENTER);
+		hBoxForPlayerVS.getStyleClass().add("vBoxRootTop");
+		
+		VBoxRootTop.getChildren().addAll(title, hBoxForPlayerVS);
 		// add a  game title
-		root.setTop(new CustomPane("Welcome to Tic Tac Toe!"));
+	
+		root.setTop(VBoxRootTop);
 		
 		// show the game board
 		root.setCenter(ticTacToe.getGameDisplay());		
@@ -824,6 +854,7 @@ public class MainView {
 		
 		vBoxForGame.getChildren().addAll(turnLabel, quitBtn);
 		vBoxForGame.setAlignment(Pos.CENTER);
+		vBoxForGame.getStyleClass().add("vBoxForGame");
 		
 		quitBtn.setOnAction(e -> {
 			ticTacToe.saveInfo();
@@ -998,6 +1029,7 @@ public class MainView {
 	}
 	
 	public void addWholeGiftList () {
+		wholeGiftList.clear();
 		wholeGiftList.add("✰  (need 2 wins)");
 		wholeGiftList.add("❤  (need 5 wins)");
 		wholeGiftList.add("⌘ (need 10 wins)");
@@ -1054,9 +1086,9 @@ public class MainView {
 
 // customePane for "Welcome to Tic Tac Toe"
 class CustomPane extends StackPane {
-	public CustomPane(String title) {
+	public CustomPane(String title, String titleStyle) {
 		Text textTitle = new Text(title);
 		getChildren().add(textTitle);
-		textTitle.getStyleClass().add("textTitle");
+		textTitle.getStyleClass().add(titleStyle);
 	}
 }

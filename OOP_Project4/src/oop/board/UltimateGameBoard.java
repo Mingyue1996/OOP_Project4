@@ -117,7 +117,7 @@ public class UltimateGameBoard extends Board {
 					MainView.ticTacToe.setBasicGameBoardList(ultimateTwoD[i][j]);
 				}
 			}
-			System.out.println("size in reset: " + gridPane.getChildren().size());
+			//System.out.println("size in reset: " + gridPane.getChildren().size());
 			// update valid basic game board AND remove all the color styles applied to the basic boards
 			for (int i = 0; i < 9; i++) {
 				MainView.ticTacToe.validBasicGameBoardMap.put(i, MainView.ticTacToe.getBasicGameBoardList(i).basicTwoD);
