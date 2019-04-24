@@ -8,7 +8,6 @@ import oop.player.HumanPlayer;
 import oop.player.Player;
 import oop.view.MainView;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -277,6 +276,8 @@ public class TTTControllerImpl implements TTTControllerInterface {
 		marker = player.get(playerID-1).getMarker();
 		this.playerID = playerID;
 		// get a valid board number
+		
+		/******* Check if there is a board number in the Map ************/
 		int validBoardNumber = (int) validBasicGameBoardMap.keySet().toArray()[0];
 		
 		// use basic game board list to return the valid game board

@@ -11,9 +11,11 @@ public class UltimateGameBoard extends Board {
 	
 	// create a pane to hold the board
 	public static GridPane gridPane = new GridPane();
-	
 	public static BasicGameBoard[][] ultimateTwoD;
+	
 	private int numberOfCells;
+	private boolean basicBoardHasWon = false;
+	
 	// create a constructor --- create an ultimate game board
 	public UltimateGameBoard(int numberOfCells) {
 		
@@ -50,10 +52,12 @@ public class UltimateGameBoard extends Board {
 		
 		int currentBasicBoardLocationRow = MainView.ticTacToe.getCurrentBasicBoardLocationRow();
 		int currentBasicBoardLocationCol = MainView.ticTacToe.getCurrentBasicBoardLocationCol();
-		
+		basicBoardHasWon = false;
 		//System.out.println("row col: " + newRow + "  " + newCol);
 		
 		if (ultimateTwoD[currentBasicBoardLocationRow][currentBasicBoardLocationCol].hasWon(newMoveRow, newMoveCol, marker)) {
+			basicBoardHasWon = true;
+			//System.out.println("win a mini board " + ultimateTwoD[currentBasicBoardLocationRow][currentBasicBoardLocationCol].getSquareID());
 			int basicBoardID = MainView.ticTacToe.transformIntoSquareID(currentBasicBoardLocationRow,currentBasicBoardLocationCol, -1, -1, false);
 			if (MainView.ticTacToe.getPlayerID() == 1) {
 				gridPane.getChildren().get(basicBoardID).getStyleClass().add("basicBoard_player1");
@@ -132,15 +136,21 @@ public class UltimateGameBoard extends Board {
 			int currentBasicBoardLocationRow = MainView.ticTacToe.getCurrentBasicBoardLocationRow();
 			int currentBasicBoardLocationCol = MainView.ticTacToe.getCurrentBasicBoardLocationCol();
 			//System.out.println("new row & col: " + currentBasicBoardLocationRow + " " + currentBasicBoardLocationCol);
-			if (ultimateTwoD[currentBasicBoardLocationRow][currentBasicBoardLocationCol].isEmptySpaceAvailable()) {
+			
+			// check whether this board has been marked
+			// for the first if statement, return true Only If the board is not marked AND there is at least one empty space
+			if (!basicBoardHasWon && ultimateTwoD[currentBasicBoardLocationRow][currentBasicBoardLocationCol].isEmptySpaceAvailable()) {
 				return true;
 			} else {
 				// When we go to this else statement, the following thing would happen:
-				// there is a tie in one basic game board, so we need to mark the basic game board
+				// there is a tie/win in one basic game board. We need to mark the basic game board IF this basic game board is a TIE
 				// we also need to check if there is a tie in the Big game board
-				ultimateTwoD[currentBasicBoardLocationRow][currentBasicBoardLocationCol].setMarker(" ", false);
-				int basicBoardID = MainView.ticTacToe.transformIntoSquareID(currentBasicBoardLocationRow,currentBasicBoardLocationCol, -1, -1, false);
-				gridPane.getChildren().get(basicBoardID).getStyleClass().add("tie");
+				if (!basicBoardHasWon) {
+					ultimateTwoD[currentBasicBoardLocationRow][currentBasicBoardLocationCol].setMarker(" ", false);
+					int basicBoardID = MainView.ticTacToe.transformIntoSquareID(currentBasicBoardLocationRow,currentBasicBoardLocationCol, -1, -1, false);
+					gridPane.getChildren().get(basicBoardID).getStyleClass().add("tie");
+				}
+				
 				
 				//int basicBoardID = MainView.ticTacToe.transformIntoSquareID(currentBasicBoardLocationRow,currentBasicBoardLocationCol, -1, -1, false);
 				for (int i = 0; i < numberOfCells; i ++) {
