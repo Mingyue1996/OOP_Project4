@@ -37,24 +37,20 @@ import javafx.util.Duration;
 //import main.course.oop.tictactoe.util.TwoDArray;
 
 public class MainView {
-	int size;
-	public static BorderPane root;
+	private int size;
+	
 	private Scene scene; 
 	private StackPane pane = new StackPane();
-	
-	public static VBox vBoxForGame = new VBox(20);
-	public static TTTControllerImpl ticTacToe = new TTTControllerImpl();
 	
 	private int numPlayer;
 	private static int gameVersion;
 	private int numberOfCells;
 	private static int timeout = 0;
-	public static Label turnLabel = new Label();
 	
 	private ArrayList<String> username = new ArrayList<>();
 	private ArrayList<String> marker = new ArrayList<>();
 	private static int humanPlayerID = 1;
-	public static Timeline timer;
+	
 	private static boolean isAIMove = false;
 	
 	private boolean emptyErrors = false;
@@ -62,8 +58,7 @@ public class MainView {
 	
     private final int windowWidth = 1200; 
     private final int windowHeight = 900;
-    VBox VBoxRootLeft = new VBox(10);
-    
+    private VBox VBoxRootLeft = new VBox(10);
     private VBox VBoxRootTop = new VBox(5);
     
     private Text emptyInputsText = new Text ("Fill in user name and marker. Computer cannot be username.");	
@@ -76,8 +71,7 @@ public class MainView {
     
     private boolean hasUniqueTile;
     private String username_gift, username1, username2, marker1, marker2;
-    public static Timeline timerSquare;
-    public static Button quitBtn;
+    
     private ArrayList<String> userInfoArrayList = new ArrayList<String>();
     private ArrayList<String> usernameArrayList = new ArrayList<String>();
     private ArrayList<String> username_WinArrayList = new ArrayList<String>();
@@ -88,7 +82,7 @@ public class MainView {
 	private ObservableList<String> markerList1;
 	private ObservableList<String> markerList2;
 	// create a list view for players to choose multiple markers
-	ListView<String> giftsLV = new ListView<>(giftList);
+	private ListView<String> giftsLV = new ListView<>(giftList);
     
     private ArrayList<String> imageOption = new ArrayList<String>();
     private Button checkOldUser = new Button("Check previous game results");
@@ -98,21 +92,17 @@ public class MainView {
     private int chosenMaxNumberOfWins;
     private int index;
     
+    public static BorderPane root;
+	public static VBox vBoxForGame = new VBox(20);
+	public static TTTControllerImpl ticTacToe = new TTTControllerImpl();
+	public static Label turnLabel = new Label();
+	public static Timeline timer;
+	public static Timeline timerSquare;
+    public static Button quitBtn;
+	
     //public static Timeline timerSquare;
     
 	public MainView() {
-		/*
-		  "✰  (need 2 wins) ",
-			        "❤  (need 5 wins)",
-			        "⌘ (need 8 wins)",
-			        "✞  (need 12 wins)",
-			        "☎  (need 18 wins)",
-			        "✂  (need 25 wins)",
-			        "➹  (need 35 wins)",
-			        "☂   (need 45 wins)",
-			        "❄  (need 55 wins)",
-			        "☯  (need 70 wins)"
-		 */
 		imageOption.add("♫");
 		imageOption.add("☀");
 		imageOption.add("✈");
@@ -253,6 +243,7 @@ public class MainView {
 			giftList = FXCollections.observableArrayList(wholeGiftList);
 			//System.out.println(giftList);
 			giftsLV.setItems(giftList);
+			giftsLV.getSelectionModel().clearSelection(); 
 		});
 		
 		// update the # of players

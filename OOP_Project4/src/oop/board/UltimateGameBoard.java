@@ -9,12 +9,13 @@ import oop.view.MainView;
 
 public class UltimateGameBoard extends Board {
 	
-	// create a pane to hold the board
-	public static GridPane gridPane = new GridPane();
-	public static BasicGameBoard[][] ultimateTwoD;
+	private BasicGameBoard[][] ultimateTwoD;
 	
 	private int numberOfCells;
 	private boolean basicBoardHasWon = false;
+	
+	// create a pane to hold the board
+	public static GridPane gridPane = new GridPane();
 	
 	// create a constructor --- create an ultimate game board
 	public UltimateGameBoard(int numberOfCells) {

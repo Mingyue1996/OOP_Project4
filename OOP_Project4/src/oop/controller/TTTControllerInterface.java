@@ -11,7 +11,7 @@
 package oop.controller;
 
 import javafx.scene.layout.Pane;
-import oop.board.Board;
+
 
 public interface TTTControllerInterface {
 	

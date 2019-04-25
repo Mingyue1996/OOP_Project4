@@ -17,14 +17,16 @@ public class Square extends BorderPane implements Squares {
 	private int boardID;
 	private String marker;
 	private boolean isMarked = false;
-	// create a HBox
-	public static HBox hBox = new HBox(20);
 	
 	private String computerMarker;
 	private int currentPlayerID;
 	private boolean isUnpickable;
 	private boolean isNeutral;
 	private boolean isTrap;
+	
+	// create a HBox
+	public static HBox hBox = new HBox(20);
+		
 	
 	public Square (int square_id, int board_id, String marker) {
 		squareID = square_id;
@@ -51,11 +53,6 @@ public class Square extends BorderPane implements Squares {
 		return marker;
 	}
 	
-	// return boardID
-	public int getBoardID() {
-		return boardID;
-	}
-	
 	// update marker
 	public void setMarker(String marker, boolean isReset) {
 		this.marker = marker;
@@ -77,6 +74,11 @@ public class Square extends BorderPane implements Squares {
 	// return square state
 	public boolean getIsMarked() {
 		return isMarked;
+	}
+	
+	// return boardID
+	public int getBoardID() {
+		return boardID;
 	}
 	
 	// handle a mouse click event

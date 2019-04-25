@@ -7,21 +7,16 @@ public class Board extends BorderPane {
 	
 	String boardMarker;
 	Pane pane;
-	//public static Board[][] boardParent;
-
-
 	
-	// hasWon method
 	
-		
-		public String getMarker () {
-			return boardMarker;
-		}
-		
-		public Pane display() {
-			return pane;
-		}
-		
+	public String getMarker () {
+		return boardMarker;
+	}
+	
+	public Pane display() {
+		return pane;
+	}
+	
 	
 	public void reset() {}
 	public boolean hasWon(int newMakeRow, int newMakeCol, String marker) {return true;}

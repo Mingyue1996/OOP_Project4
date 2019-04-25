@@ -9,7 +9,7 @@ public class Player implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -1682581207599914438L;
-	//private static final long serialVersionUID = 1L;
+
 	String username;
 	String marker;
 	int playerID;
@@ -81,11 +81,5 @@ public class Player implements Serializable {
 	public void setPersonalMarkerWins(ArrayList<String> al) {
 		personalMarkerWins.addAll(al);
 	}
-	
-	
-	
-
-
-
 
 }

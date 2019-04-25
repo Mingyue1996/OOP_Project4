@@ -6,14 +6,3 @@ public interface Squares {
 	public abstract void setMarker(String marker, boolean isReset);
 	public abstract boolean getIsMarked();
 }
-
-
-
-/*
- *  getSquareID
- getMarker
- setMarker
- getIsMarked
- 
- * 
- * */

@@ -14,15 +14,19 @@ public class BasicGameBoard extends Board implements Squares {
 	 
 	// create a pane to hold squares
 	private GridPane gridPaneBasic;
-	public Square[][] basicTwoD;
+	
 	//private String marker1, marker2;
 	private int boardID;
-	private String boardMarker;
-	private boolean isMarked = false;
+	private int uniqueTileID;
 	private int numberOfCells;
-	int[] territorySpots = new int[4];
-	boolean containsUniqueTile = false;
-	int uniqueTileID;
+	private int[] territorySpots = new int[4];
+	
+	private boolean isMarked = false;
+	private boolean containsUniqueTile = false;
+	
+	private String boardMarker;
+	
+	public Square[][] basicTwoD;
 	//private int boardFormat = 0;
 	// constructor
 	public BasicGameBoard(int id, boolean hasUniqueTile, int numberOfCells, String boardMarker) {
@@ -53,7 +57,7 @@ public class BasicGameBoard extends Board implements Squares {
 				gridPaneBasic.add(basicTwoD[i][j] = new Square(squareID, boardID, "   "),j,i);
 				if (this.containsUniqueTile && squareID == uniqueTileID) {
 					basicTwoD[i][j].setIsTrap(true);
-					System.out.println("row: " + i + " col: " + j);
+					System.out.println("trap tile row: " + i + " col: " + j);
 				}
 				
 				if (MainView.getGameVersion() == 5 && (squareID == territorySpots[0] || squareID == territorySpots[1])) {
@@ -168,7 +172,7 @@ public class BasicGameBoard extends Board implements Squares {
 					
 					if (this.containsUniqueTile && this.basicTwoD[i][j].getSquareID() == uniqueTileID) {
 						basicTwoD[i][j].setIsTrap(true);
-						System.out.println("row: " + i + " col: " + j);
+						System.out.println("trap tile row: " + i + " col: " + j);
 					}
 					
 					if (MainView.getGameVersion() == 5 && (this.basicTwoD[i][j].getSquareID() == territorySpots[0] || this.basicTwoD[i][j].getSquareID() == territorySpots[1])) {

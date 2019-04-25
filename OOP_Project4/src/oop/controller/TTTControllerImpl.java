@@ -39,12 +39,13 @@ public class TTTControllerImpl implements TTTControllerInterface {
 	private boolean isHumanPlayer = true;
 	private boolean isLastMoveValid = true;
 	private Square previousMove;
-	public ArrayList<Player> player = new ArrayList<>();
-	private HashMap<String, Player> userInfo = new HashMap<String, Player>();
-	private ArrayList<BasicGameBoard> basicGameBoardList = new ArrayList<>();
-	public HashMap<Integer, Square[][]> validBasicGameBoardMap= new HashMap<>(); 
-	private HashMap<Integer, BasicGameBoard> basicGameBoardMap = new HashMap<>();
 	
+	private HashMap<String, Player> userInfo = new HashMap<String, Player>();
+	private HashMap<Integer, BasicGameBoard> basicGameBoardMap = new HashMap<>();
+	private ArrayList<BasicGameBoard> basicGameBoardList = new ArrayList<>();
+		
+	public ArrayList<Player> player = new ArrayList<>();
+	public HashMap<Integer, Square[][]> validBasicGameBoardMap= new HashMap<>(); 
 	// constructor
 	public TTTControllerImpl () {
 		retrieveUserInfo();
@@ -255,6 +256,11 @@ public class TTTControllerImpl implements TTTControllerInterface {
 		}
 		
 		// else, there is a tie
+		if (MainView.getGameVersion() == 2) {
+			for (int i = 0; i< 9; i++) {
+				UltimateGameBoard.gridPane.getChildren().get(i).getStyleClass().removeIf(style -> style.equals("validBoard"));
+			}
+		}
 		gameState = 3;
 		return 3;
 	}
